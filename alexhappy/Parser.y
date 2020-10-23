@@ -6,76 +6,148 @@ import GHC.Generics
 import Lexer
 import Control.DeepSeq
 import Data.Char
+import Lib as L
 }
 
-%name parser Expr
-%tokentype { Token }
+%name parseTokens input
+%tokentype { Lexer.Token }
 %error { parseError }
 
 %token
-	"def"                   { DefFunc }
-	":"                     { Colon }
-	"return"                { ReturnStm }
-	"while"                 { While }
-	"if"                    { If }
-	"else"                  { Else }
-	"True"                  { TTrue }
-	"False"                 { TFalse }
-	"\+"                    { Plus }
-	"\-"                    { Minus }
-	"\/"                    { Div }
-	"\*"                    { Mul }
-	"=="                    { Equality }
-	">"                     { Greater }
-	"<"                     { Less }
-	">="                    { GreaterEq }
-	"<="                    { LessEq }
-	"and"                   { And }
-	"or"                    { Or }
-	"not"                   { Not }
-	"="                     { Assign }
-	"("                     { OPar }
-	")"                     { CPar }
-	","                     { Comma }
-	name 			{ Name $$ }
-	int			{ Int $$ }
-	float			{ Float $$ }
-	str			{ Str $$ }
+	"def"                   		{ Keyword "def" }
+	"return"                		{ Keyword "return" }
+	"while"                 		{ Keyword "while" }
+	"if"                    		{ Keyword "if" }
+	"True"                  		{ Keyword "True" }
+	"False"                 		{ Keyword "False" }
+	"pass"					{ Keyword "pass" }
+	"+"                    			{ Operator "+" }
+	"-"                    			{ Operator "-" }
+	"/"                    			{ Operator "/" }
+	"*"                    			{ Operator "*" }
+	"=="                    		{ Operator "==" }
+	">"                     		{ Operator ">" }
+	"<"                     		{ Operator "<" }
+	">="                    		{ Operator ">=" }
+	"<="                    		{ Operator "<=" }
+	"and"                   		{ Keyword "and" }
+	"or"                    		{ Keyword "or" }
+	"not"                   		{ Keyword "not" }
+	"else"                   		{ Keyword "else" }
+	"="                     		{ Delimiter "=" }
+	"("                     		{ Delimiter "(" }
+	")"                     		{ Delimiter ")" }
+	":"         				{ Delimiter ":" }
+	","                     		{ Delimiter ","  }
+	NEWLINE					{ Newline }
+	INDENT					{ Indent }
+	DEDENT					{ Dedent }
+	name 					{ Identifier $$ }
+	literal     				{ Literal $$ }
+	str      				{ StringLiteral $$ }
+
 %%
-Statements:
-	Statement+
-Statement:
-	Function_def
-	| If_stmt
-	| While_stmt
-	| "pass" { Pass }
-	| Assignment
-	| Return_stmt
-Assignment:
-	name "=" Expr ";" {}
-If_stmt:
-	"if" Named_expression ":" Block [Else_block] {}
-Else_block:
-	"else" ":" Block {}
-While_stmt:
-	"while" Named_expression ":" Block {}
-Return_stmt:
-	"return" [star_expressions] {}
-Function_def:
-	Function0
-	| Function1
-	| Function2
-Function0:
-	"def" name "(" ")" ":" Block {}
-Function1:
-	"def" name "(" name  ")" ":" Block {}
-Function2:
-	"def" name "(" name "," name ")" ":" Block {}
+input
+	: NEWLINE					{[Pass]}
+	| statements					{ foldl' (++) [] (rights $1) }
 
-data Statement = Assignment
-	       | IfStmt
-	       | WhileStmt
+statements
+	: statement					{$1}
+	| statement NEWLINE statements			{$1:$2}
+statement
+	: compound_stmt					{[$1]}
+	| simple_stmt					{$1}
 
+simple_stmt
+	: assignment NEWLINE				{ $1 }
+	| "pass" NEWLINE				{ $1 }
+	| return_stmt NEWLINE				{ $1 }
+	| function_call					{ $1 }
+
+compound_stmt
+	: function_def					{$1}
+	| if_stmt					{$1}
+	| while_stmt					{$1}
+
+function_call
+	: f0call					{Pass}
+	| f1call					{Pass}
+	| f2call					{Pass}
+f0call:
+	name "(" ")"					{Pass}
+f1call:
+	name "(" name ")"				{Pass}
+f2call:
+	name "(" name "," name ")"			{Pass}
+assignment:
+	name "=" expression				{Pass}
+if_stmt:
+	"if" expression ":" block 			{Pass}
+	| "if" expression ":" block else_block 		{Pass}
+else_block:
+	"else" ":" block	 			{Pass}
+while_stmt:
+	"while" expression ":" block 			{Pass}
+return_stmt:
+	"return" expression				{Pass}
+function_def:
+	function_def0					{Pass}
+	| function_def1					{Pass}
+	| function_def2					{Pass}
+function_def0:
+	"def" name "(" ")" ":" block	 		{Pass}
+function_def1:
+	"def" name "(" name  ")" ":" block	 	{Pass}
+function_def2:
+	"def" name "(" name "," name ")" ":" block	{Pass}
+
+expression:
+	disjunction					{Pass}
+disjunction:
+	conjunction "or" conjunction 			{Pass}
+	| conjunction					{Pass}
+conjunction:
+	inversion "and" inversion 			{Pass}
+	| inversion					{Pass}
+inversion:
+	"not" inversion					{Pass}
+	| comparison					{Pass}
+comparison
+    : sum compare_op_sum_pair				{Pass}
+    | sum						{Pass}
+compare_op_sum_pair
+    : eq_sum						{Pass}
+    | lte_sum						{Pass}
+    | lt_sum						{Pass}
+    | gte_sum						{Pass}
+    | gt_sum						{Pass}
+eq_sum:
+	"==" sum					{Pass}
+lte_sum:
+	"<=" sum					{Pass}
+lt_sum:
+	"<" sum						{Pass}
+gte_sum:
+	">=" sum					{Pass}
+gt_sum:
+	">" sum						{Pass}
+sum:
+	sum "+" term					{Pass}
+	| sum "-" term					{Pass}
+	| term						{Pass}
+term:
+	term "*" atom					{Pass}
+	| term "/" atom					{Pass}
+	| atom						{Pass}
+atom:
+	name						{Pass}
+	| "True"					{Pass}
+	| "False"					{Pass}
+	| str						{Pass}
+	| literal						{Pass}
+block:
+	NEWLINE INDENT statements DEDENT 		{concat $3}
+	| simple_stmt					{$1}
 {
 parseError =  fail "Parse error"
 }
