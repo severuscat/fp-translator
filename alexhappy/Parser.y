@@ -60,7 +60,7 @@ statement
 
 simple_stmt
 	: assignment NEWLINE				{ $1 }
-	| "pass" NEWLINE				{ $1 }
+	| "pass" NEWLINE				{ Pass }
 	| return_stmt NEWLINE				{ $1 }
 	| function_call					{ $1 }
 
@@ -70,81 +70,68 @@ compound_stmt
 	| while_stmt					{$1}
 
 function_call
-	: f0call					{Pass}
-	| f1call					{Pass}
-	| f2call					{Pass}
+	: f0call					{$1}
+	| f1call					{$1}
+	| f2call					{$1}
 f0call:
-	name "(" ")"					{Pass}
+	name "(" ")"					{F0Call $1}
 f1call:
-	name "(" name ")"				{Pass}
+	name "(" name ")"				{F1Call $1 $3}
 f2call:
-	name "(" name "," name ")"			{Pass}
+	name "(" name "," name ")"			{F2Call $1 $3 $5}
 assignment:
-	name "=" expression				{Pass}
+	name "=" expression				{Assignment $1 $3}
 if_stmt:
-	"if" expression ":" block 			{Pass}
-	| "if" expression ":" block else_block 		{Pass}
+	"if" expression ":" block 			{If ((IfClause $2 $4):$5 [] }
+	| "if" expression ":" block else_block 		{If ((IfClause $2 $4):$5 $6}
 else_block:
-	"else" ":" block	 			{Pass}
+	"else" ":" block	 			{$3}
 while_stmt:
-	"while" expression ":" block 			{Pass}
+	"while" expression ":" block 			{ While $2 $4 }
 return_stmt:
-	"return" expression				{Pass}
+	"return" expression				{Return $2}
 function_def:
-	function_def0					{Pass}
-	| function_def1					{Pass}
-	| function_def2					{Pass}
+	function_def0					{ $1 }
+	| function_def1					{ $2 }
+	| function_def2					{ $3 }
 function_def0:
-	"def" name "(" ")" ":" block	 		{Pass}
+	"def" name "(" ")" ":" block	 		{FuncDef (T.pack $2) [] $6}
 function_def1:
-	"def" name "(" name  ")" ":" block	 	{Pass}
+	"def" name "(" name  ")" ":" block	 	{FuncDef (T.pack $2) [$4] $7}
 function_def2:
-	"def" name "(" name "," name ")" ":" block	{Pass}
+	"def" name "(" name "," name ")" ":" block	{FuncDef (T.pack $2) [$4, $5] $9}
 
 expression:
-	disjunction					{Pass}
+	disjunction					{$1}
 disjunction:
-	conjunction "or" conjunction 			{Pass}
-	| conjunction					{Pass}
+	conjunction "or" conjunction 			{BinOp (BoolOp Or) $1 $3}
+	| conjunction					{$1}
 conjunction:
-	inversion "and" inversion 			{Pass}
-	| inversion					{Pass}
+	inversion "and" inversion 			{BinOp (BoolOp And) $1 $3}
+	| inversion					{$1}
 inversion:
-	"not" inversion					{Pass}
-	| comparison					{Pass}
+	"not" inversion					{UnaryOp Not $2}
+	| comparison					{$1}
 comparison
-    : sum compare_op_sum_pair				{Pass}
-    | sum						{Pass}
-compare_op_sum_pair
-    : eq_sum						{Pass}
-    | lte_sum						{Pass}
-    | lt_sum						{Pass}
-    | gte_sum						{Pass}
-    | gt_sum						{Pass}
-eq_sum:
-	"==" sum					{Pass}
-lte_sum:
-	"<=" sum					{Pass}
-lt_sum:
-	"<" sum						{Pass}
-gte_sum:
-	">=" sum					{Pass}
-gt_sum:
-	">" sum						{Pass}
+	: sum "==" sum					{ BinOp (CompOp Eq) $1 $3 }
+	| sum "<=" sum					{ BinOp (CompOp LessThanEq) $1 $3 }
+	| sum "<" sum					{ BinOp (CompOp LessThan) $1 $3 }
+	| sum ">=" sum					{ BinOp (CompOp GreaterThanEq) $1 $3 }
+	| sum ">" sum					{ BinOp (CompOp GreaterThan) $1 $3 }
+	| sum						{ $1 }
 sum:
-	sum "+" term					{Pass}
-	| sum "-" term					{Pass}
-	| term						{Pass}
+	sum "+" term					{BinOp (ArithOp Add) $1 $3}
+	| sum "-" term					{BinOp (ArithOp Sub) $1 $3}
+	| term						{$1}
 term:
-	term "*" atom					{Pass}
-	| term "/" atom					{Pass}
-	| atom						{Pass}
+	term "*" atom					{BinOp (ArithOp Mul) $1 $3 }
+	| term "/" atom					{BinOp (ArithOp Div) $1 $3 }
+	| atom						{$1}
 atom:
-	name						{Pass}
-	| "True"					{Pass}
-	| "False"					{Pass}
-	| str						{Pass}
-	| literal						{Pass}
+	name						{Name . T.pack $ s}
+	| "True"					{ Constant $ ConstantBool True }
+	| "False"					{ Constant $ ConstantBool False}
+	| literal					{Constant $1}
 block:
 	NEWLINE INDENT statements DEDENT 		{concat $3}
 	| simple_stmt					{$1}

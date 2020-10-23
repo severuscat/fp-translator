@@ -1,6 +1,5 @@
 module Lib where
 
-import Data.Complex
 import Data.Text (Text)
 
 data Statement
@@ -9,7 +8,7 @@ data Statement
     | If [IfClause] [Statement]
     | FuncDef Name [Param] [Statement]
     | Return Expression
-    | While Expression Statements Statements
+    | While Expression Statements
     | Pass
     deriving(Eq, Show)
 
