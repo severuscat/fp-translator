@@ -1,73 +1,88 @@
 {
-module Lexer where
+module Lexer
+( Token(..)
+, alexScanTokens
+) where
 }
+%wrapper "basic"
 $alpha = [a-zA-Z]
 $digit = 0-9
 
 tokens :-
-    "def"                   {\s -> Token Def}
-    ":"                     {\s -> Token Colon}
-    "return"                {\s -> Token ReturnStm}
-    "while"                 {\s -> Token While}
-    "if"                    {\s -> Token If}
-    "else"                  {\s -> Token Else}
-    "True"                  {\s -> Token TTrue}
-    "False"                 {\s -> Token TFalse}
-    "+"                     {\s -> Token Plus}
-    "-"                     {\s -> Token Minus}
-    "/"                     {\s -> Token Div}
-    "*"                     {\s -> Token Mul}
-    "=="                    {\s -> Token Equality}
-    "print"                 {\s -> Token Print}
-    ">"                     {\s -> Token Greater}
-    "<"                     {\s -> Token Less}
-    ">="                    {\s -> Token GreaterEq}
-    "<="                    {\s -> Token LessEq}
-    "and"                   {\s -> Token And}
-    "or"                    {\s -> Token Or}
-    "not"                   {\s -> Token Not}
-    "="                     {\s -> Token Assign}
-    "("                     {\s -> Token OPar}
-    ")"                     {\s -> Token CPar}
-    ","                     {\s -> Token Comma}
-    "\n"                    {\s -> Token Newline}
-    "\t"                    {\s -> Token Tab}
-    $alpha [$alpha $digit]* {\s -> Token Name s}
-    $digit+                 {\s -> Token Int s}
-    $digit+ "\." $digit+    {\s -> Token Float s}
-    \"[^\"]\"               {\s -> Token Str s}
+    $white                  {\s -> tokenWhite s}
+    "def"                   {\s -> Def}
+    ":"                     {\s -> Colon}
+    "return"                {\s -> ReturnStm}
+    "while"                 {\s -> While}
+    "if"                    {\s -> If}
+    "else"                  {\s -> Else}
+    "True"                  {\s -> TTrue}
+    "False"                 {\s -> TFalse}
+    "+"                     {\s -> Plus}
+    "-"                     {\s -> Minus}
+    "/"                     {\s -> Div}
+    "*"                     {\s -> Mul}
+    "=="                    {\s -> Equality}
+    "print"                 {\s -> Print}
+    ">"                     {\s -> Greater}
+    "<"                     {\s -> Less}
+    ">="                    {\s -> GreaterEq}
+    "<="                    {\s -> LessEq}
+    "and"                   {\s -> And}
+    "or"                    {\s -> Or}
+    "not"                   {\s -> Not}
+    "="                     {\s -> Assign}
+    "("                     {\s -> OPar}
+    ")"                     {\s -> CPar}
+    ","                     {\s -> Comma}
+    "pass"                  {\s -> Pass}
+    $alpha [$alpha $digit]* {\s -> Name s}
+    $digit+                 {\s -> MyInt (read s :: Int)}
+    $digit+ "\." $digit+    {\s -> MyFloat (read s :: Float)}
+    \"[^\"]\"               {\s -> Str s}
 {
-data Token = Def
-  | ReturnStm
-  | Dots
+data Token =
+  And
+  | Def
+  | Dedent --make it later
+  | Assign
   | Colon
-  | While
-  | If
-  | Else
-  | Plus
-  | Minus
+  | Comma
+  | CPar
   | Div
-  | Mul
+  | Dots
+  | Else
   | Equality
   | Greater
-  | Less
   | GreaterEq
-  | LessEq
-  | Tab
-  | Comma
-  | TTrue
-  | TFalse
-  | And
+  | If
+  | Indent --make it later
   | Or
-  | Not
-  | Assign
   | OPar
-  | CPar
+  | Less
+  | LessEq
+  | Minus
+  | Mul
+  | Not
+  | Newline
   | Pass
+  | Plus
   | Print
-  | Name !String
-  | Str !String
-  | Int !String
-  | Float !String
+  | ReturnStm
+  | TEmpty
+  | TFalse
+  | TTrue
+  | While
+  | Space
+  | Name String
+  | Str String
+  | MyInt Int
+  | MyFloat Float
+  | Tab Int
   deriving (Show, Eq)
+
+tokenWhite :: String -> Token
+tokenWhite "\n" = Newline
+tokenWhite " " = Space
+tokenWhite _ = TEmpty
 }
