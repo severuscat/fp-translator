@@ -25,25 +25,25 @@ data Statement
 type Name = String
 
 data Expression
-  = F0CallE Name
-  | F1CallE Name Name
-  | F2CallE Name Name Name
-  | MyTrue
-  | MyFalse
-  | Not Expression
-  | Add Expression Expression
-  | Sub Expression Expression
-  | Mul Expression Expression
-  | Div Expression Expression
-  | And Expression Expression
-  | Or Expression Expression
-  | Eq Expression Expression
-  | LessThan Expression Expression
-  | LessThanEq Expression Expression
-  | GreaterThan Expression Expression
-  | GreaterThanEq Expression Expression
-  | MyFloat Float
-  | MyInt Int
-  | Str String
-  | Var Name
+  = F0CallE Name  --int | str | float | none
+  | F1CallE Name Name  --int | str | float | none
+  | F2CallE Name Name Name --int | str | float | none
+  | MyTrue  --bool
+  | MyFalse  --bool
+  | Not Expression  --bool
+  | Add Expression Expression   --int | str | floaf
+  | Sub Expression Expression  --int | floaf
+  | Mul Expression Expression  --int | floaf
+  | Div Expression Expression  --int | floaf
+  | And Expression Expression  --bool
+  | Or Expression Expression  --bool
+  | Eq Expression Expression --bool
+  | LessThan Expression Expression --bool
+  | LessThanEq Expression Expression --bool
+  | GreaterThan Expression Expression --bool
+  | GreaterThanEq Expression Expression --bool
+  | MyFloat Float --float
+  | MyInt Int --int
+  | Str String --str
+  | Var Name --int | str | float | notExist
   deriving (Eq, Show)
