@@ -48,7 +48,14 @@ instance Num (MyValue a) where
 
   fromInteger x = MInt $ fromInteger x
 
---instance Fractional MyValue
+instance Fractional (MyValue a) where
+  fromRational a = MFloat $ fromRational a
+
+  (/) (MInt x) (MInt y) = MInt $ x `Prelude.div` y
+  (/) (MInt x) (MFloat y) = MFloat $ fromIntegral x / y
+  (/) (MFloat x) (MFloat y) = MFloat $ x / y
+  (/) (MFloat x) (MInt y) = MFloat $ x / fromIntegral y
+  (/) _ _ = error "you can NOT divide this"
 
 type Name = String
 
@@ -91,23 +98,22 @@ class PyDsl expr where
   --  f0CallE :: expr Name -> expr MyValue --int | str | float | none
   --  f1CallE :: expr Name -> expr Name -> expr MyValue --int | str | float | none
   --  f2CallE :: expr Name -> expr Name -> expr Name -> expr MyValue --int | str | float | none
-  --  myTrue :: expr Bool --bool
-  --  myFalse :: expr Bool --boolMyValue
-  --  not :: expr Bool -> expr Bool --bool
+  myTrue :: expr (MyValue Bool) --bool
+  myFalse :: expr (MyValue Bool) --boolMyValue
+  not :: expr Bool -> expr Bool --bool
   wrapMyValue :: MyValue a -> expr (MyValue a)
   add :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue a)
   sub :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue a)
-
---  mul :: expr MyValue -> expr MyValue -> expr MyValue --int | floaf
---  div :: expr MyValue -> expr MyValue -> expr MyValue --int | floaf
---  and :: expr Bool -> expr Bool -> expr Bool --bool
---  or :: expr Bool -> expr Bool -> expr Bool --bool
---  eq :: expr MyValue -> expr MyValue -> expr Bool --bool
---  lessThan :: expr MyValue -> expr MyValue -> expr Bool --bool
---  lessThanEq :: expr MyValue -> expr MyValue -> expr Bool --bool
---  greaterThan :: expr MyValue -> expr MyValue -> expr Bool --bool
---  greaterThanEq :: expr MyValue -> expr MyValue -> expr Bool --bool
---  myFloat :: expr Float -> expr Float --float
---  myInt :: expr Int --int
---  str :: expr String --str
---  var :: expr Name -> expr MyValue --int | str | float | notExist
+  mul :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue a) --int | floaf
+  div :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue a) --int | floaf
+  and :: expr Bool -> expr Bool -> expr Bool --bool
+  or :: expr Bool -> expr Bool -> expr Bool --bool
+  eq :: expr (MyValue a) -> expr (MyValue a) -> expr Bool --bool
+  lessThan :: expr (MyValue a) -> expr (MyValue a) -> expr Bool --bool
+  lessThanEq :: expr (MyValue a) -> expr (MyValue a) -> expr Bool --bool
+  greaterThan :: expr (MyValue a) -> expr (MyValue a) -> expr Bool --bool
+  greaterThanEq :: expr (MyValue a) -> expr (MyValue a) -> expr Bool --bool
+  --  myFloat :: expr Float -> expr Float --float
+  --  myInt :: expr Int --int
+  --  str :: expr String --str
+  --  var :: expr Name -> expr MyValue --int | str | float | notExist
