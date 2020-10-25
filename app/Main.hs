@@ -1,5 +1,7 @@
 module Main where
 
+import DSL
+import Interpreter
 import Lexer
 import Lib
 import Parser (parseTokens)
@@ -30,3 +32,4 @@ main = do
   print "==============FILE=============="
   print $ convertTokens $ alexScanTokens contents
   print $ parseTokens $ convertTokens $ alexScanTokens contents
+  print $ interpret $ DSL.or (lessThan (wrapMyValue (MInt 6)) (wrapMyValue (MInt 10))) myTrue

@@ -100,19 +100,19 @@ class PyDsl expr where
   --  f2CallE :: expr Name -> expr Name -> expr Name -> expr MyValue --int | str | float | none
   myTrue :: expr (MyValue Bool) --bool
   myFalse :: expr (MyValue Bool) --boolMyValue
-  not :: expr Bool -> expr Bool --bool
+  not :: expr (MyValue Bool) -> expr (MyValue Bool) --bool
   wrapMyValue :: MyValue a -> expr (MyValue a)
   add :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue a)
   sub :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue a)
   mul :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue a) --int | floaf
   div :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue a) --int | floaf
-  and :: expr Bool -> expr Bool -> expr Bool --bool
-  or :: expr Bool -> expr Bool -> expr Bool --bool
-  eq :: expr (MyValue a) -> expr (MyValue a) -> expr Bool --bool
-  lessThan :: expr (MyValue a) -> expr (MyValue a) -> expr Bool --bool
-  lessThanEq :: expr (MyValue a) -> expr (MyValue a) -> expr Bool --bool
-  greaterThan :: expr (MyValue a) -> expr (MyValue a) -> expr Bool --bool
-  greaterThanEq :: expr (MyValue a) -> expr (MyValue a) -> expr Bool --bool
+  and :: expr (MyValue Bool) -> expr (MyValue Bool) -> expr (MyValue Bool) --bool
+  or :: expr (MyValue Bool) -> expr (MyValue Bool) -> expr (MyValue Bool) --bool
+  eq :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue Bool) --bool
+  lessThan :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue Bool) --bool
+  lessThanEq :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue Bool) --bool
+  greaterThan :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue Bool) --bool
+  greaterThanEq :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue Bool) --bool
   --  myFloat :: expr Float -> expr Float --float
   --  myInt :: expr Int --int
   --  str :: expr String --str
