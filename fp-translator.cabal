@@ -31,6 +31,9 @@ library
       , Lexer
       , Parser
       , Grammar
+      , DSL
+      , Interpreter
+      , PPrinter
   other-modules:
       Paths_fp_translator
   hs-source-dirs:
@@ -43,6 +46,8 @@ library
       , deepseq
       , array
       , split
+      , containers
+      , transformers
   default-language: Haskell2010
 
 executable fp-translator-exe
