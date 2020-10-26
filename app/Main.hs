@@ -32,4 +32,7 @@ main = do
   print "==============FILE=============="
   print $ convertTokens $ alexScanTokens contents
   print $ parseTokens $ convertTokens $ alexScanTokens contents
-  print $ interpret $ DSL.or (lessThan (wrapMyValue (MInt 6)) (wrapMyValue (MInt 10))) myTrue
+--  print $ interpret $ DSL.or (lessThan (wrapMyValue (MInt 6)) (wrapMyValue (MInt 10))) myTrue
+  print "==============INTERPRETOR=============="
+  res <- test
+  print res

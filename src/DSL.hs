@@ -1,6 +1,8 @@
-{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module DSL where
+
+import Data.Kind (Type)
 
 data MyValue a = MInt Int | MBool Bool | MFloat Float | MString String | None deriving (Show)
 
@@ -76,10 +78,12 @@ type Name = String
 --  extractValue x = MBool x
 
 class PyDsl expr where
+  type MyValueWrap expr :: Type -> Type
+  wrapMyValue :: MyValue a -> expr (MyValue a)
   -- root
   --  pyFile ::
   -- statement
-  --  assignment :: expr Name -> expr MyValue -> expr ()
+  assignment :: expr (MyValueWrap expr (MyValue a))  -> expr (MyValue a) -> expr ()
   --  ifSt :: expr Bool -> expr () -> expr ()
   --  ifElseSt :: expr Bool -> expr () -> expr () -> expr ()
   --  func0Def :: expr Name -> expr () -> expr ()
@@ -95,25 +99,24 @@ class PyDsl expr where
   --  f2CallS :: expr Name -> expr Name -> expr Name -> expr ()
 
   --Expression
-  --  f0CallE :: expr Name -> expr MyValue --int | str | float | none
+  f0CallE :: Name -> (expr (MyValueWrap expr (MyValue a)) -> expr ()) -> expr (MyValue a)
   --  f1CallE :: expr Name -> expr Name -> expr MyValue --int | str | float | none
   --  f2CallE :: expr Name -> expr Name -> expr Name -> expr MyValue --int | str | float | none
   myTrue :: expr (MyValue Bool) --bool
   myFalse :: expr (MyValue Bool) --boolMyValue
   not :: expr (MyValue Bool) -> expr (MyValue Bool) --bool
-  wrapMyValue :: MyValue a -> expr (MyValue a)
   add :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue a)
   sub :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue a)
   mul :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue a) --int | floaf
   div :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue a) --int | floaf
   and :: expr (MyValue Bool) -> expr (MyValue Bool) -> expr (MyValue Bool) --bool
   or :: expr (MyValue Bool) -> expr (MyValue Bool) -> expr (MyValue Bool) --bool
-  eq :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue Bool) --bool
-  lessThan :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue Bool) --bool
-  lessThanEq :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue Bool) --bool
-  greaterThan :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue Bool) --bool
-  greaterThanEq :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue Bool) --bool
-  --  myFloat :: expr Float -> expr Float --float
-  --  myInt :: expr Int --int
-  --  str :: expr String --str
-  --  var :: expr Name -> expr MyValue --int | str | float | notExist
+  eq :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue Bool)
+  lessThan :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue Bool)
+  lessThanEq :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue Bool)
+  greaterThan :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue Bool)
+  greaterThanEq :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue Bool)
+--  myFloat :: expr Float -> expr (MyValue Float)
+--  myInt :: expr Int -> expr (MyValue Int)
+--  str :: expr String -> expr (MyValue String)
+  --var :: expr Name -> expr (MyValue a)
