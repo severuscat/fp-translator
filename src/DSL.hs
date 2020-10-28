@@ -81,9 +81,7 @@ class PyDsl expr where
 --  f2CallS :: expr Name -> expr Name -> expr Name -> expr ()
 
   --Expression
---  f0CallE :: Name -> (expr (MyValueWrap expr MyValue) -> expr ()) -> expr MyValue
---  f1CallE :: expr Name -> expr Name -> expr MyValue --int | str | float | none
---  f2CallE :: expr Name -> expr Name -> expr Name -> expr MyValue --int | str | float | none
+  fCall ::  expr MyValue -> expr MyValue
   myTrue :: expr MyValue --bool
   myFalse :: expr MyValue --boolMyValue
   not :: expr MyValue -> expr MyValue  --bool

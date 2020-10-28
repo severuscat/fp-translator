@@ -17,7 +17,7 @@ import GHC.Base (IO)
 
 type Context = Map String MyValue
 
-newtype Interpretor m s = Interpretor {interpret :: StateT Context m s}
+newtype Interpretor m s = Interpretor { interpret :: StateT Context m s }
 
 instance Monad (Interpretor IO) where
   (>>=) x func = Interpretor $ do
@@ -26,7 +26,7 @@ instance Monad (Interpretor IO) where
 
 instance MonadFail (Interpretor IO) where
   fail _ = error "trying to get MBool in logical operation, but failed. Ha-ha, loser!"
-  
+
 instance Functor (Interpretor IO) where
   fmap f = Interpretor .fmap f. interpret
 
@@ -39,7 +39,7 @@ instance Applicative (Interpretor IO) where
 
 initContext :: Context
 initContext = empty
- 
+
 instance PyDsl (Interpretor IO) where
   greaterThan a b = do
     a1 <- a
@@ -78,29 +78,24 @@ instance PyDsl (Interpretor IO) where
     Interpretor . return $ MBool (Prelude.not a1)
   myFalse = Interpretor . return $ MBool False
   myTrue = Interpretor . return $ MBool True
---  newtype Context = Context { mapVars :: Map String MyValue } 
+  
+--  type Context = Map String MyValue
 --  newtype Interpretor m s = Interpretor {interpret :: StateT Context m s}
 
 --  type MyValueWrap (Interpretor IO) = IO
 --  wrapMyValue = Interpretor . return
---assignment :: expr (MyValueWrap expr MyValue)  -> expr MyValue -> expr ()
+
   mprint x = Interpretor $ do
     x1 <- interpret x
-    lift $ print x1 
-  
-  assignment wrpr val = do
---                    context expr  WrapMyValue
---                       |     |       |
-  --oldMapka = StateT Context IO (IORef MyValue)
+    lift $ print x1
     
-    let oldMapka = interpret wrpr
---    let newMapka = insert name value oldMapka
+  fCall a = Interpretor $ do interpret a
     
-    return ()
-  
-  
-  
-  
-  
-  
+  assignment name val = Interpretor $ do
+    n <- interpret name
+    v <- interpret val
+    modify $ helper n v
+      where
+        helper :: Name -> MyValue -> Context -> Context
+        helper n v context = insertWith const n v context
   
