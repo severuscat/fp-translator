@@ -4,9 +4,9 @@ module DSL where
 
 import Data.Kind (Type)
 
-data MyValue a = MInt Int | MBool Bool | MFloat Float | MString String | None deriving (Show)
+data MyValue = MInt Int | MBool Bool | MFloat Float | MString String deriving (Show)
 
-instance Eq (MyValue a) where
+instance Eq MyValue where
   (==) (MString a) (MString b) = a == b
   (==) (MInt a) (MInt b) = a == b
   (==) (MInt a) (MFloat b) = fromIntegral a == b
@@ -14,14 +14,14 @@ instance Eq (MyValue a) where
   (==) (MFloat a) (MFloat b) = a == b
   (==) _ _ = error "You can't compare values of this type"
 
-instance Ord (MyValue a) where
+instance Ord MyValue where
   (<=) (MInt a) (MInt b) = a <= b
   (<=) (MInt a) (MFloat b) = fromIntegral a <= b
   (<=) (MFloat a) (MInt b) = a <= fromIntegral b
   (<=) (MFloat a) (MFloat b) = a <= b
   (<=) _ _ = error "You can't compare values of this type"
 
-instance Num (MyValue a) where
+instance Num MyValue where
   (+) (MInt x) (MInt y) = MInt $ x + y
   (+) (MInt x) (MFloat y) = MFloat $ fromIntegral x + y
   (+) (MFloat x) (MFloat y) = MFloat $ x + y
@@ -50,7 +50,7 @@ instance Num (MyValue a) where
 
   fromInteger x = MInt $ fromInteger x
 
-instance Fractional (MyValue a) where
+instance Fractional MyValue where
   fromRational a = MFloat $ fromRational a
 
   (/) (MInt x) (MInt y) = MInt $ x `Prelude.div` y
@@ -61,61 +61,43 @@ instance Fractional (MyValue a) where
 
 type Name = String
 
---class (Show t) => MyType t where
---  extractValue :: t -> MyValue
---
---instance MyType Float where
---  extractValue x = MFloat x
---
---instance MyType Int where
---  extractValue x = MInt x
---
---type Declarations expr c = [expr (KtFunData c)]
---instance MyType String where
---  extractValue x = MString x
---
---instance MyType Bool where
---  extractValue x = MBool x
-
 class PyDsl expr where
-  type MyValueWrap expr :: Type -> Type
-  wrapMyValue :: MyValue a -> expr (MyValue a)
   -- root
   --  pyFile ::
   -- statement
-  assignment :: expr (MyValueWrap expr (MyValue a))  -> expr (MyValue a) -> expr ()
-  --  ifSt :: expr Bool -> expr () -> expr ()
-  --  ifElseSt :: expr Bool -> expr () -> expr () -> expr ()
-  --  func0Def :: expr Name -> expr () -> expr ()
-  --  func1Def :: expr Name -> expr Name -> expr () -> expr ()
-  --  func2Def :: expr Name -> expr Name -> expr Name -> expr () -> expr ()
-  --  while :: expr Bool -> expr () -> expr ()
-  --  return :: expr MyValue -> expr ()
-  --  expression :: expr MyValue -> expr ()
-  --  pass :: expr ()
-  --  mprint :: expr MyValue -> expr ()
-  --  f0CallS :: expr Name -> expr ()
-  --  f1CallS :: expr Name -> expr Name -> expr ()
-  --  f2CallS :: expr Name -> expr Name -> expr Name -> expr ()
+  assignment :: expr Name  -> expr MyValue -> expr ()
+--  ifSt :: expr Bool -> expr () -> expr ()
+--  ifElseSt :: expr Bool -> expr () -> expr () -> expr ()
+--  func0Def :: expr Name -> expr () -> expr ()
+--  func1Def :: expr Name -> expr Name -> expr () -> expr ()
+--  func2Def :: expr Name -> expr Name -> expr Name -> expr () -> expr ()
+--  while :: expr Bool -> expr () -> expr ()
+--  return :: expr MyValue -> expr ()
+--  expression :: expr MyValue -> expr ()
+--  pass :: expr ()
+  mprint :: expr MyValue -> expr ()
+--  f0CallS :: expr Name -> expr ()
+--  f1CallS :: expr Name -> expr Name -> expr ()
+--  f2CallS :: expr Name -> expr Name -> expr Name -> expr ()
 
   --Expression
-  f0CallE :: Name -> (expr (MyValueWrap expr (MyValue a)) -> expr ()) -> expr (MyValue a)
-  --  f1CallE :: expr Name -> expr Name -> expr MyValue --int | str | float | none
-  --  f2CallE :: expr Name -> expr Name -> expr Name -> expr MyValue --int | str | float | none
-  myTrue :: expr (MyValue Bool) --bool
-  myFalse :: expr (MyValue Bool) --boolMyValue
-  not :: expr (MyValue Bool) -> expr (MyValue Bool) --bool
-  add :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue a)
-  sub :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue a)
-  mul :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue a) --int | floaf
-  div :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue a) --int | floaf
-  and :: expr (MyValue Bool) -> expr (MyValue Bool) -> expr (MyValue Bool) --bool
-  or :: expr (MyValue Bool) -> expr (MyValue Bool) -> expr (MyValue Bool) --bool
-  eq :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue Bool)
-  lessThan :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue Bool)
-  lessThanEq :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue Bool)
-  greaterThan :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue Bool)
-  greaterThanEq :: expr (MyValue a) -> expr (MyValue a) -> expr (MyValue Bool)
+--  f0CallE :: Name -> (expr (MyValueWrap expr MyValue) -> expr ()) -> expr MyValue
+--  f1CallE :: expr Name -> expr Name -> expr MyValue --int | str | float | none
+--  f2CallE :: expr Name -> expr Name -> expr Name -> expr MyValue --int | str | float | none
+  myTrue :: expr MyValue --bool
+  myFalse :: expr MyValue --boolMyValue
+  not :: expr MyValue -> expr MyValue  --bool
+  add :: expr MyValue -> expr MyValue -> expr MyValue
+  sub :: expr MyValue -> expr MyValue -> expr MyValue
+  mul :: expr MyValue -> expr MyValue -> expr MyValue --int | floaf
+  div :: expr MyValue -> expr MyValue -> expr MyValue --int | floaf
+  and :: expr MyValue -> expr MyValue -> expr MyValue --bool
+  or :: expr MyValue -> expr MyValue -> expr MyValue --bool
+  eq :: expr MyValue -> expr MyValue -> expr MyValue
+  lessThan :: expr MyValue -> expr MyValue -> expr MyValue
+  lessThanEq :: expr MyValue -> expr MyValue -> expr MyValue
+  greaterThan :: expr MyValue -> expr MyValue -> expr MyValue
+  greaterThanEq :: expr MyValue -> expr MyValue -> expr MyValue
 --  myFloat :: expr Float -> expr (MyValue Float)
 --  myInt :: expr Int -> expr (MyValue Int)
 --  str :: expr String -> expr (MyValue String)

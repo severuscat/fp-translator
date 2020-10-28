@@ -1,0 +1,23 @@
+/home/severuscat/STUD/3_4_course/FP/fp-translator/fp-translator.cabal was modified manually. Ignoring /home/severuscat/STUD/3_4_course/FP/fp-translator/package.yaml in favor of the cabal file.
+If you want to use the package.yaml file instead of the cabal file,
+then please delete the cabal file.
+Stack has not been tested with GHC versions above 8.6, and using 8.8.4, this may fail
+Stack has not been tested with Cabal versions above 2.4, but version 3.0.1.0 was found, this may fail
+Building all executables for `fp-translator' once. After a successful build of all of them, only specified executables will be rebuilt.
+fp-translator> configure (lib + exe)
+Configuring fp-translator-0.1.0.0...
+fp-translator> build (lib + exe)
+Preprocessing library for fp-translator-0.1.0.0..
+Building library for fp-translator-0.1.0.0..
+
+<no location info>: warning: [-Wmissing-home-modules]
+    These modules are needed for compilation but not listed in your .cabal file's other-modules: 
+        Lexer
+[1 of 3] Compiling Lexer
+
+/home/severuscat/STUD/3_4_course/FP/fp-translator/alexhappy/Lexer.x:117:1: error:
+    parse error (possibly incorrect indentation or mismatched brackets)
+
+--  While building package fp-translator-0.1.0.0 using:
+      /home/severuscat/.stack/setup-exe-cache/x86_64-linux/Cabal-simple_mPHDZzAJ_3.0.1.0_ghc-8.8.4 --builddir=.stack-work/dist/x86_64-linux/Cabal-3.0.1.0 build lib:fp-translator exe:fp-translator-exe --ghc-options ""
+    Process exited with code: ExitFailure 1
