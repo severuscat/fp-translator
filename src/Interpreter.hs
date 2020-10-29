@@ -125,12 +125,15 @@ instance PyDsl (Interpretor IO) where
       helper _ = error "trying to use not bool as a condition in if statement. Sad news("
 
   myBool b = Interpretor $ return $ MBool b
+  myFloat f = Interpretor $ return $ MFloat f
+  myInt i = Interpretor $ return $ MInt i
+  myStr s = Interpretor $ return $ MString s
 
 test :: Interpretor IO () -> IO ()
 test prog = evalStateT (interpret prog) initContext
 
 tprog1 :: Interpretor IO ()
-tprog1 = ifElseSt (myBool True) (mprint $ myBool True) pass
+tprog1 = ifElseSt (greaterThanEq (myInt 3) (myInt 10)) (mprint $ myStr "then branch") (mprint $ myStr "else branch")
 
 --let st = runIdentity (execStateT (interpret testWhile) empty)
 --      snd (st ! "a") `shouldBe` HNumber (HInt 0)

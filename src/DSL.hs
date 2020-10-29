@@ -93,6 +93,6 @@ class PyDsl expr where
 
 --  myFloat :: Float -> expr MyValue
   myBool :: Bool -> expr MyValue
---  myInt :: expr Int -> expr (MyValue Int)
---  str :: expr String -> expr (MyValue String)
---  var :: expr Name -> expr (MyValue a)
+  myInt :: Int -> expr MyValue
+  myStr :: String -> expr MyValue
+  myFloat :: Float -> expr MyValue
