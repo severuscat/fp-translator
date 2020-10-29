@@ -1,42 +1,42 @@
 module Lib where
 
-import Data.Text (Text)
-import Data.List.Split (splitOn)
-import Lexer
 import DSL
+import Data.List.Split (splitOn)
+import Data.Map ((!), Map)
+import Data.Text (Text)
 import Grammar as G
-import Data.Map (Map, (!))
+import Lexer
 
 data Context expr = Context
-  { varsMap  :: Map String (expr MyValue)
-  , func0Map :: Map String (expr MyValue)
-  , func1Map :: Map String (expr MyValue -> expr MyValue)
-  , func2Map :: Map String (expr MyValue -> expr MyValue -> expr MyValue)
+  { varsMap :: Map String (expr MyValue),
+    func0Map :: Map String (expr MyValue),
+    func1Map :: Map String (expr MyValue -> expr MyValue),
+    func2Map :: Map String (expr MyValue -> expr MyValue -> expr MyValue)
   }
 
 convertTokens :: [Token] -> [Token]
 convertTokens lst = convertTokens2 $ markIndent 0 $ convertTokenSplitted (splitOn [Newline] lst)
   where
     markIndent :: Int -> [[Token]] -> [Token]
-    markIndent level ((Tab newLvl:xss):xs) = let dif = newLvl - level in
-                                              case dif of
-                                                0 -> xss            ++ [Newline] ++ markIndent newLvl xs
-                                                1 -> (Indent:xss)   ++ [Newline] ++ markIndent newLvl xs
-                                                _ -> if dif < 0
-                                                       then (replicate (- dif) Dedent ++ [Newline] ++ xss) ++ [Newline] ++ markIndent newLvl xs
-                                                       else error "incorrect number of spaces in the beginning of this line"
+    markIndent level ((Tab newLvl : xss) : xs) =
+      let dif = newLvl - level
+       in case dif of
+            0 -> xss ++ [Newline] ++ markIndent newLvl xs
+            1 -> (Indent : xss) ++ [Newline] ++ markIndent newLvl xs
+            _ ->
+              if dif < 0
+                then (replicate (- dif) Dedent ++ [Newline] ++ xss) ++ [Newline] ++ markIndent newLvl xs
+                else error "incorrect number of spaces in the beginning of this line"
     markIndent _ _ = []
-
     convertTokenSplitted :: [[Token]] -> [[Token]]
-    convertTokenSplitted (x:xs) = replaceWithNTabs 0 x : convertTokenSplitted xs
+    convertTokenSplitted (x : xs) = replaceWithNTabs 0 x : convertTokenSplitted xs
     convertTokenSplitted [] = []
-    
     replaceWithNTabs :: Int -> [Token] -> [Token]
-    replaceWithNTabs n (Space:xs) = replaceWithNTabs (n+1) xs
+    replaceWithNTabs n (Space : xs) = replaceWithNTabs (n + 1) xs
     replaceWithNTabs n rest = case mod n 4 of
-                                0 -> Tab (n `Prelude.div` 4):filter (\x -> x /= Space && x /= TEmpty) rest
-                                _ -> error "incorrect number of spaces in the beginning of this line"    
-                                
+      0 -> Tab (n `Prelude.div` 4) : filter (\x -> x /= Space && x /= TEmpty) rest
+      _ -> error "incorrect number of spaces in the beginning of this line"
+
 convertTokens2 :: [Token] -> [Token]
 convertTokens2 [] = []
 convertTokens2 [x] = [x]
@@ -45,7 +45,7 @@ convertTokens2 tokens = helper (head tokens) (tokens !! 1) [] (tail $ tail token
     helper :: Token -> Token -> [Token] -> [Token] -> [Token]
     helper Newline Dedent acc [] = acc ++ [Dedent]
     helper Newline Dedent acc as = helper Dedent (head as) acc $ tail as
-    helper x Newline acc [] = acc++[x]
+    helper x Newline acc [] = acc ++ [x]
     helper Newline Newline acc as = helper Newline (head as) acc $ tail as
     helper x y acc [] = acc ++ [x, y]
     helper x y acc as = helper y (head as) (acc ++ [x]) $ tail as
@@ -72,10 +72,10 @@ gToDSLExpr (G.MyFloat fnum) _ = myFloat fnum
 gToDSLExpr (G.Str str) _ = myStr str
 gToDSLExpr G.MyTrue _ = myBool True
 gToDSLExpr G.MyFalse _ = myBool False
-gToDSLExpr (G.Var name) context =  varsMap context ! name
-gToDSLExpr (G.ReadInt) context = undefined
-gToDSLExpr (G.ReadStr) context = undefined
-gToDSLExpr (G.ReadFloat) context = undefined
-gToDSLExpr (G.F0CallE name) context = undefined
-gToDSLExpr (G.F1CallE name arg1) context = undefined
-gToDSLExpr (G.F2CallE name arg1 arg2) context = undefined
+gToDSLExpr (G.Var name) context = varsMap context ! name
+gToDSLExpr G.ReadInt context = undefined
+gToDSLExpr G.ReadStr context = undefined
+gToDSLExpr G.ReadFloat context = undefined
+gToDSLExpr (G.F0CallE name) context = func0Map context ! name
+gToDSLExpr (G.F1CallE name arg1) context = (func1Map context ! name) $ gToDSLExpr arg1 context
+gToDSLExpr (G.F2CallE name arg1 arg2) context = (func2Map context ! name) (gToDSLExpr arg1 context) (gToDSLExpr arg2 context)

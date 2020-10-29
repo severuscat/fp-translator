@@ -117,8 +117,8 @@ atom:
 	| "input()"					{ G.ReadStr }
 	| name						{ G.Var $1 }
 	| name "(" ")"					{ G.F0CallE $1 }
-        | name "(" name ")"				{ G.F1CallE $1 $3 }
-        | name "(" name "," name ")"			{ G.F2CallE $1 $3 $5 }
+        | name "(" expression ")"			{ G.F1CallE $1 $3 }
+        | name "(" expression "," expression ")"	{ G.F2CallE $1 $3 $5 }
 	| "True"					{ G.MyTrue }
 	| "False"					{ G.MyFalse}
 	| int						{ G.MyInt $1}

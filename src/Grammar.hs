@@ -26,8 +26,8 @@ type Name = String
 
 data Expression
   = F0CallE Name  --int | str | float | none
-  | F1CallE Name Name  --int | str | float | none
-  | F2CallE Name Name Name --int | str | float | none
+  | F1CallE Name Expression  --int | str | float | none
+  | F2CallE Name Expression Expression --int | str | float | none
   | MyTrue  --bool
   | MyFalse  --bool
   | Not Expression  --bool
