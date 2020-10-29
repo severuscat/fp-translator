@@ -5,6 +5,7 @@ import Interpreter
 import Lexer
 import Lib
 import Parser (parseTokens)
+import Control.Monad.Trans.State.Lazy (runStateT, execStateT)
 
 main :: IO ()
 main = do
@@ -24,5 +25,4 @@ main = do
   print $ parseTokens $ convertTokens $ alexScanTokens contents
       --  print $ interpret $ DSL.or (lessThan (wrapMyValue (MInt 6)) (wrapMyValue (MInt 10))) myTrue
   print "\n==============INTERPRETOR=============="
---  res <- test
---  print res
+  test tprog1

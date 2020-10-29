@@ -62,17 +62,13 @@ instance Fractional MyValue where
 type Name = String
 
 class PyDsl expr where
-  -- root
-  --  pyFile ::
   -- statement
   assignment :: expr Name -> expr MyValue -> expr ()
 
---  ifSt :: expr MyValue -> expr () -> expr ()
-  --  ifElseSt :: expr Bool -> expr () -> expr () -> expr ()
+  ifSt :: expr MyValue -> expr () -> expr ()
+  ifElseSt :: expr MyValue -> expr () -> expr () -> expr ()
   while :: expr MyValue -> expr () -> expr ()
-  --  return :: expr MyValue -> expr ()
---    expression :: expr MyValue -> expr ()
---  pass :: expr()
+  pass :: expr()
   mprint :: expr MyValue -> expr ()
   func0 :: (expr Name -> expr ()) -> expr MyValue
   func1 :: (expr Name -> expr Name -> expr ()) -> expr MyValue -> expr MyValue
@@ -95,7 +91,8 @@ class PyDsl expr where
   greaterThan :: expr MyValue -> expr MyValue -> expr MyValue
   greaterThanEq :: expr MyValue -> expr MyValue -> expr MyValue
 
---  myFloat :: expr Float -> expr (MyValue Float)
+--  myFloat :: Float -> expr MyValue
+  myBool :: Bool -> expr MyValue
 --  myInt :: expr Int -> expr (MyValue Int)
 --  str :: expr String -> expr (MyValue String)
---var :: expr Name -> expr (MyValue a)
+--  var :: expr Name -> expr (MyValue a)

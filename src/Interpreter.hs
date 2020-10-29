@@ -9,7 +9,7 @@ import Control.Monad.Trans.Class (lift)
 import Control.Monad.Trans.State.Lazy
 import DSL
 import Data.Map
-import GHC.Base (IO, when)
+import GHC.Base (when)
 
 type Context = Map String MyValue
 
@@ -94,7 +94,7 @@ instance PyDsl (Interpretor IO) where
     a1 <- interpret arg1
     a2 <- interpret arg2
     let newMapka = insert "#arg2" a2 $ insert "#arg1" a1 $ insert "#resvalue" None initContext
-    lift $ execStateT (interpret $ fun (return "#arg1") (return "#arg2") (return "#resvalue") ) newMapka >>= (\x -> return $ x ! "#resvalue")
+    lift $ execStateT (interpret $ fun (return "#arg1") (return "#arg2") (return "#resvalue")) newMapka >>= (\x -> return $ x ! "#resvalue")
 
   assignment name val = Interpretor $ do
     n <- interpret name
@@ -103,7 +103,9 @@ instance PyDsl (Interpretor IO) where
     where
       helper :: Name -> MyValue -> Context -> Context
       helper n v context = insertWith const n v context
---  pass = undefined
+
+  pass = Interpretor $ return ()
+
   while predicate stms = Interpretor $ do
     p <- interpret predicate
     interpret (when (helper p) $ stms >> while predicate stms)
@@ -112,10 +114,25 @@ instance PyDsl (Interpretor IO) where
       helper (MBool False) = False
       helper _ = error "trying to use not bool as a condition in while cycle. Sad news("
 
---  ifSt predicate stms = Interpretor $ do
---    p <- interpret predicate
---    if helper p then interpret stms else pass
---    where
---      helper (MBool True) = True
---      helper (MBool False) = False
---      helper _ = error "trying to use not bool as a condition in if statement. Sad news("
+  ifSt predicate stms = ifElseSt predicate stms pass
+
+  ifElseSt predicate thenstms elsestms = Interpretor $ do
+    p <- interpret predicate
+    if helper p then interpret thenstms else interpret elsestms
+    where
+      helper (MBool True) = True
+      helper (MBool False) = False
+      helper _ = error "trying to use not bool as a condition in if statement. Sad news("
+
+--  myBool :: Bool -> expr MyValue
+  myBool b = Interpretor $ return $ MBool b
+
+test :: Interpretor IO () -> IO ()
+test prog = evalStateT (interpret prog) initContext
+
+tprog1 :: Interpretor IO ()
+tprog1 = ifElseSt (myBool True) (mprint $ myBool True) pass
+
+--let st = runIdentity (execStateT (interpret testWhile) empty)
+--      snd (st ! "a") `shouldBe` HNumber (HInt 0)
+
