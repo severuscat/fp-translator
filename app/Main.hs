@@ -23,6 +23,5 @@ main = do
       
   print "\n==============PARSER=============="
   print $ parseTokens $ convertTokens $ alexScanTokens contents
-      --  print $ interpret $ DSL.or (lessThan (wrapMyValue (MInt 6)) (wrapMyValue (MInt 10))) myTrue
   print "\n==============INTERPRETOR=============="
   test tprog1

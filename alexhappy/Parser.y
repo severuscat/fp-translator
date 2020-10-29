@@ -14,29 +14,29 @@ import Grammar as G
 %error { parseError }
 
 %token
-    "def"                   {Lexer.Def}
-    ":"                     {Lexer.Colon}
-    "return"                {Lexer.ReturnStm}
-    "while"                 {Lexer.While}
-    "if"                    {Lexer.If}
-    "else"                  {Lexer.Else}
-    "True"                  {Lexer.TTrue}
-    "False"                 {Lexer.TFalse}
-    "+"                     {Lexer.Plus}
-    "-"                     {Lexer.Minus}
-    "/"                     {Lexer.Div}
-    "*"                     {Lexer.Mul}
-    "=="                    {Lexer.Equality}
-    "pass"                  {Lexer.Pass}
-    "print"                 {Lexer.Print}
-    ">"                     {Lexer.Greater}
-    "<"                     {Lexer.Less}
-    ">="                    {Lexer.GreaterEq}
-    "<="                    {Lexer.LessEq}
-    "and"                   {Lexer.And}
-    "or"                    {Lexer.Or}
-    "not"                   {Lexer.Not}
-    "="            			         {Lexer.Assign}
+    "def"                   			{Lexer.Def}
+    ":"                     			{Lexer.Colon}
+    "return"                			{Lexer.ReturnStm}
+    "while"                 			{Lexer.While}
+    "if"                    			{Lexer.If}
+    "else"                  			{Lexer.Else}
+    "True"                  			{Lexer.TTrue}
+    "False"                 			{Lexer.TFalse}
+    "+"                     			{Lexer.Plus}
+    "-"                     			{Lexer.Minus}
+    "/"                     			{Lexer.Div}
+    "*"                     			{Lexer.Mul}
+    "=="                    			{Lexer.Equality}
+    "pass"                  			{Lexer.Pass}
+    "print"                 			{Lexer.Print}
+    ">"                     			{Lexer.Greater}
+    "<"                     			{Lexer.Less}
+    ">="                    			{Lexer.GreaterEq}
+    "<="                    			{Lexer.LessEq}
+    "and"                   			{Lexer.And}
+    "or"                    			{Lexer.Or}
+    "not"                   			{Lexer.Not}
+    "="            			        {Lexer.Assign}
     "("                     			{Lexer.OPar}
     ")"                     			{Lexer.CPar}
     ","                     			{Lexer.Comma}
@@ -47,6 +47,9 @@ import Grammar as G
     float					{ Lexer.MyFloat $$ }
     int						{ Lexer.MyInt $$ }
     name 					{ Lexer.Name $$ }
+    "input()" 					{ Lexer.ReadStr }
+    "int(input())" 				{ Lexer.ReadInt }
+    "float(input())" 				{ Lexer.ReadFloat }
 
 %%
 input
@@ -109,7 +112,10 @@ term:
 	| term "/" atom					{ G.Div $1 $3 }
 	| atom						{ $1 }
 atom:
-	name						{ G.Var $1 }
+	"int(input())"					{ G.ReadInt }
+	| "float(input())"				{ G.ReadFloat }
+	| "input()"					{ G.ReadStr }
+	| name						{ G.Var $1 }
 	| name "(" ")"					{ G.F0CallE $1 }
         | name "(" name ")"				{ G.F1CallE $1 $3 }
         | name "(" name "," name ")"			{ G.F2CallE $1 $3 $5 }

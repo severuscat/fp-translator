@@ -10,6 +10,9 @@ $digit = 0-9
 
 tokens :-
     $white                  {\s -> tokenWhite s}
+    "int(input())"          {\s -> ReadInt}
+    "float(input())"        {\s -> ReadFloat}
+    "input()"               {\s -> ReadStr}
     "def"                   {\s -> Def}
     ":"                     {\s -> Colon}
     "return"                {\s -> ReturnStm}
@@ -76,6 +79,9 @@ data Token =
   | Space
   | Name String
   | Str String
+  | ReadInt
+  | ReadFloat
+  | ReadStr
   | MyInt Int
   | MyFloat Float
   | Tab Int

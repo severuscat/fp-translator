@@ -5,6 +5,7 @@ def p():
         if t == 1:
             t = 1020
             t = t + 11
+            k = int(input())
             pass
     return x > 3
 w = 91

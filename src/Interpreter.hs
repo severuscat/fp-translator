@@ -124,7 +124,6 @@ instance PyDsl (Interpretor IO) where
       helper (MBool False) = False
       helper _ = error "trying to use not bool as a condition in if statement. Sad news("
 
---  myBool :: Bool -> expr MyValue
   myBool b = Interpretor $ return $ MBool b
 
 test :: Interpretor IO () -> IO ()
@@ -135,4 +134,3 @@ tprog1 = ifElseSt (myBool True) (mprint $ myBool True) pass
 
 --let st = runIdentity (execStateT (interpret testWhile) empty)
 --      snd (st ! "a") `shouldBe` HNumber (HInt 0)
-

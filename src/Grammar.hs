@@ -46,4 +46,7 @@ data Expression
   | MyInt Int --int
   | Str String --str
   | Var Name --int | str | float | notExist
+  | ReadInt
+  | ReadFloat
+  | ReadStr
   deriving (Eq, Show)
