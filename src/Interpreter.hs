@@ -129,11 +129,13 @@ instance PyDsl (Interpretor IO) where
   myInt i = Interpretor $ return $ MInt i
   myStr s = Interpretor $ return $ MString s
 
-test :: Interpretor IO () -> IO ()
-test prog = evalStateT (interpret prog) initContext
-
-tprog1 :: Interpretor IO ()
-tprog1 = ifElseSt (greaterThanEq (myInt 3) (myInt 10)) (mprint $ myStr "then branch") (mprint $ myStr "else branch")
-
+  getVar valName = Interpretor $ do
+    st <- get
+    v <- interpret valName
+    return $ st ! v
 --let st = runIdentity (execStateT (interpret testWhile) empty)
 --      snd (st ! "a") `shouldBe` HNumber (HInt 0)
+  next a b = do
+    a
+    b
+  end = return ()

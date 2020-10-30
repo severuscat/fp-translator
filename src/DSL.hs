@@ -73,7 +73,7 @@ class PyDsl expr where
   func0 :: (expr Name -> expr ()) -> expr MyValue
   func1 :: (expr Name -> expr Name -> expr ()) -> expr MyValue -> expr MyValue
   func2 :: (expr Name -> expr Name -> expr Name -> expr ()) -> expr MyValue -> expr MyValue -> expr MyValue
-
+  getVar :: expr String -> expr MyValue
   --Expression
   fCall :: expr MyValue -> expr MyValue
   myTrue :: expr MyValue --bool
@@ -96,3 +96,6 @@ class PyDsl expr where
   myInt :: Int -> expr MyValue
   myStr :: String -> expr MyValue
   myFloat :: Float -> expr MyValue
+
+  next :: expr () -> expr () -> expr ()
+  end :: expr ()

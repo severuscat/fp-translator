@@ -2,17 +2,10 @@ module Lib where
 
 import DSL
 import Data.List.Split (splitOn)
-import Data.Map ((!), Map)
+import Data.Map ((!), Map, empty)
 import Data.Text (Text)
 import Grammar as G
 import Lexer
-
-data Context expr = Context
-  { varsMap :: Map String (expr MyValue),
-    func0Map :: Map String (expr MyValue),
-    func1Map :: Map String (expr MyValue -> expr MyValue),
-    func2Map :: Map String (expr MyValue -> expr MyValue -> expr MyValue)
-  }
 
 convertTokens :: [Token] -> [Token]
 convertTokens lst = convertTokens2 $ markIndent 0 $ convertTokenSplitted (splitOn [Newline] lst)
@@ -50,11 +43,56 @@ convertTokens2 tokens = helper (head tokens) (tokens !! 1) [] (tail $ tail token
     helper x y acc [] = acc ++ [x, y]
     helper x y acc as = helper y (head as) (acc ++ [x]) $ tail as
 
---gToDSLfun0 ::
+--gToDSLfun0 :: PyDsl expr => Func0Def -> Context expr -> expr MyValue
+--gToDSLfun0 (Func0Def name block) context = func0 (\r -> gToDSLBlock)
 --gToDSLfun1 ::
 --gToDSLfun2 ::
---gToDSLBlock ::
-gToDSLExpr :: PyDsl expr => Expression -> Context expr -> expr MyValue
+
+wrap :: PyDsl expr => MyValue -> expr MyValue
+wrap (MBool b) = myBool b
+wrap (MInt b) = myInt b
+wrap (MFloat b) = myFloat b
+wrap (MString b) = myStr b
+
+--transl (G.Name s) = s
+data Context expr = Context
+  { varsMap :: Map String (expr String),
+    func0Map :: Map String (expr MyValue),
+    func1Map :: Map String (expr MyValue -> expr MyValue),
+    func2Map :: Map String (expr MyValue -> expr MyValue -> expr MyValue)
+  }
+
+initContextLib :: Context expr
+initContextLib =
+  Context
+    { varsMap = empty,
+      func0Map = empty,
+      func1Map = empty,
+      func2Map = empty
+    }
+
+gToDSLBlock :: PyDsl expr => [Statement] -> Lib.Context expr -> expr ()
+gToDSLBlock ((G.Assignment name e) : stms) context =
+  assignment (varsMap context ! name) (gToDSLExpr e context)
+    `next` gToDSLBlock stms context
+gToDSLBlock ((G.If p thenst) : stms) context =
+  ifSt (gToDSLExpr p context) (gToDSLBlock thenst context)
+    `next` gToDSLBlock stms context
+gToDSLBlock ((G.While p thenst) : stms) context =
+  while (gToDSLExpr p context) (gToDSLBlock thenst context)
+    `next` gToDSLBlock stms context
+gToDSLBlock ((G.Print e):stms) context = mprint (gToDSLExpr e context) `next` gToDSLBlock stms context
+gToDSLBlock ((G.F0CallS name) : stms) context = gToDSLBlock stms context
+gToDSLBlock ((G.F1CallS name arg1) : stms) context = gToDSLBlock stms context
+gToDSLBlock ((G.F2CallS name arg1 arg2) : stms) context = gToDSLBlock stms context
+gToDSLBlock ((G.Func0Def name block) : stms) context = gToDSLBlock stms context
+gToDSLBlock ((G.Func1Def name arg1 block) : stms) context = gToDSLBlock stms context
+gToDSLBlock ((G.Func2Def name arg1 arg2 block) : stms) context = gToDSLBlock stms context
+gToDSLBlock (_ : stms) context = gToDSLBlock stms context
+gToDSLBlock [] context = end
+
+
+gToDSLExpr :: PyDsl expr => Expression -> Lib.Context expr -> expr MyValue
 gToDSLExpr (Add a b) context = gToDSLExpr a context `DSL.add` gToDSLExpr b context
 gToDSLExpr (Sub a b) context = gToDSLExpr a context `DSL.sub` gToDSLExpr b context
 gToDSLExpr (G.Mul a b) context = gToDSLExpr a context `DSL.mul` gToDSLExpr b context
@@ -72,10 +110,11 @@ gToDSLExpr (G.MyFloat fnum) _ = myFloat fnum
 gToDSLExpr (G.Str str) _ = myStr str
 gToDSLExpr G.MyTrue _ = myBool True
 gToDSLExpr G.MyFalse _ = myBool False
-gToDSLExpr (G.Var name) context = varsMap context ! name
-gToDSLExpr G.ReadInt context = undefined
-gToDSLExpr G.ReadStr context = undefined
-gToDSLExpr G.ReadFloat context = undefined
+gToDSLExpr (G.Var name) context = getVar $ varsMap context ! name
 gToDSLExpr (G.F0CallE name) context = func0Map context ! name
 gToDSLExpr (G.F1CallE name arg1) context = (func1Map context ! name) $ gToDSLExpr arg1 context
 gToDSLExpr (G.F2CallE name arg1 arg2) context = (func2Map context ! name) (gToDSLExpr arg1 context) (gToDSLExpr arg2 context)
+
+--gToDSLExpr G.ReadInt context = undefined
+--gToDSLExpr G.ReadStr context = undefined
+--gToDSLExpr G.ReadFloat context = undefined

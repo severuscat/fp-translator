@@ -19,7 +19,7 @@ import Grammar as G
     "return"                			{Lexer.ReturnStm}
     "while"                 			{Lexer.While}
     "if"                    			{Lexer.If}
-    "else"                  			{Lexer.Else}
+    "else:"                  			{Lexer.Else}
     "True"                  			{Lexer.TTrue}
     "False"                 			{Lexer.TFalse}
     "+"                     			{Lexer.Plus}
@@ -64,6 +64,7 @@ statement
 simple_stmt
 	: assignment					{ $1 }
 	| "pass"					{ G.Pass }
+	| "print" expression 	 			{ G.Print $2 }
 	| return_stmt					{ $1 }
 	| name "(" ")"					{ F0CallS $1 }
         | name "(" name ")"				{ F1CallS $1 $3 }
@@ -76,7 +77,6 @@ assignment:
 	name "=" expression				{G.Assignment $1 $3}
 if_stmt:
 	"if" expression ":" block 			{G.If $2 $4 }
-	| "if" expression ":" block "else" ":" block    {G.IfElse $2 $4 $7}
 while_stmt:
 	"while" expression ":" block 			{ G.While $2 $4 }
 return_stmt:

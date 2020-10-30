@@ -18,7 +18,6 @@ tokens :-
     "return"                {\s -> ReturnStm}
     "while"                 {\s -> While}
     "if"                    {\s -> If}
-    "else"                  {\s -> Else}
     "True"                  {\s -> TTrue}
     "False"                 {\s -> TFalse}
     "+"                     {\s -> Plus}

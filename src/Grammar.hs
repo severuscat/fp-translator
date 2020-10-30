@@ -7,8 +7,8 @@ where
 
 data Statement
   = Assignment Name Expression
+  | Print Expression
   | If Expression [Statement]
-  | IfElse Expression [Statement] [Statement]
   | Func0Def Name [Statement]
   | Func1Def Name Name [Statement]
   | Func2Def Name Name Name [Statement]
@@ -16,7 +16,6 @@ data Statement
   | Return Expression
   | Expression Expression
   | Pass
-  | Print Expression
   | F0CallS Name
   | F1CallS Name Name
   | F2CallS Name Name Name

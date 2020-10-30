@@ -6,6 +6,7 @@ import Lexer
 import Lib
 import Parser (parseTokens)
 import Control.Monad.Trans.State.Lazy (runStateT, execStateT)
+import Test
 
 main :: IO ()
 main = do
@@ -25,3 +26,10 @@ main = do
   print $ parseTokens $ convertTokens $ alexScanTokens contents
   print "\n==============INTERPRETOR=============="
   test tprog1
+  verySimpleTest <- readFile "test-pyfiles/verysimpletest.py"
+  print verySimpleTest
+  print $ alexScanTokens verySimpleTest
+  print $ convertTokens $ alexScanTokens verySimpleTest
+  print $ parseTokens $ convertTokens $ alexScanTokens verySimpleTest
+  let prog = parseTokens $ convertTokens $ alexScanTokens verySimpleTest
+  test $ gToDSLBlock prog initContextLib
