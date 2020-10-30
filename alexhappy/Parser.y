@@ -1,6 +1,6 @@
 {
-{-# LANGUAGE DeriveAnyClass #- }
-{-# LANGUAGE DeriveGeneric #- }
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
 module Parser where
 import GHC.Generics
 import Lexer
@@ -67,8 +67,8 @@ simple_stmt
 	| "print" expression 	 			{ G.Print $2 }
 	| return_stmt					{ $1 }
 	| name "(" ")"					{ F0CallS $1 }
-        | name "(" name ")"				{ F1CallS $1 $3 }
-        | name "(" name "," name ")"			{ F2CallS $1 $3 $5 }
+        | name "(" expression ")"			{ F1CallS $1 $3 }
+        | name "(" expression "," expression ")"	{ F2CallS $1 $3 $5 }
 compound_stmt
 	: function_def					{ $1 }
 	| if_stmt					{ $1 }

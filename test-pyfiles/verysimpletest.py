@@ -1,4 +1,8 @@
-c = 1
-if c == 1:
-    c = 2
-print c
+def x():
+    c = 1
+    while c < 10:
+        print c
+        c = c + 1
+    return 0
+print 3
+x()

@@ -2,8 +2,7 @@ module Lib where
 
 import DSL
 import Data.List.Split (splitOn)
-import Data.Map ((!), Map, assocs, empty, fromList, insert, insertWith, keys, member)
-import Data.Text (Text)
+import Data.Map ((!), Map, empty, fromList, insert, member)
 import Debug.Trace
 import Grammar as G
 import Lexer
@@ -149,8 +148,12 @@ gToDSLBlock ((G.Func2Def name a1 a2 block) : stms) context =
             )
             (func2Map context)
       }
-gToDSLBlock ((G.F0CallS name) : stms) context = end
-gToDSLBlock ((G.F1CallS name arg1) : stms) context = end
+gToDSLBlock ((G.F0CallS name) : stms) context =
+  fCall (func0Map context ! name)
+  `next` gToDSLBlock stms context
+gToDSLBlock ((G.F1CallS name arg1) : stms) context = 
+  fCall ((func1Map context ! name) (gToDSLExpr arg1 context))
+  `next` gToDSLBlock stms context
 gToDSLBlock ((G.F2CallS name arg1 arg2) : stms) context = end
 gToDSLBlock (_ : stms) context = end
 gToDSLBlock [] context = end
@@ -171,8 +174,8 @@ gToDSLExpr (G.GreaterThanEq a b) context = gToDSLExpr a context `DSL.greaterThan
 gToDSLExpr (G.MyInt inum) _ = myInt inum
 gToDSLExpr (G.MyFloat fnum) _ = myFloat fnum
 gToDSLExpr (G.Str str) _ = myStr str
-gToDSLExpr (G.MyTrue) _ = myBool True
-gToDSLExpr (G.MyFalse) _ = myBool False
+gToDSLExpr G.MyTrue _ = myBool True
+gToDSLExpr G.MyFalse _ = myBool False
 gToDSLExpr (G.Var name) context = if member name (varsMap context) then getVar $ varsMap context ! name else error "no value with this name "
 gToDSLExpr (G.F0CallE name) context = func0Map context ! name
 gToDSLExpr (G.F1CallE name arg1) context = (func1Map context ! name) $ gToDSLExpr arg1 context

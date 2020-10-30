@@ -1,6 +1,6 @@
 module Test where
 
-import Control.Monad.Trans.State.Lazy (evalStateT, runStateT, execStateT)
+import Control.Monad.Trans.State.Strict (evalStateT, runStateT, execStateT)
 import DSL
 import Data.IntMap.Internal (fromList)
 import Grammar as G

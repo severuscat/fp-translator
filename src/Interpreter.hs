@@ -6,7 +6,7 @@ module Interpreter where
 
 import Control.Applicative (liftA2)
 import Control.Monad.Trans.Class (lift)
-import Control.Monad.Trans.State.Lazy
+import Control.Monad.Trans.State.Strict
 import DSL
 import Data.Map
 import GHC.Base (when)
@@ -80,7 +80,9 @@ instance PyDsl (Interpretor IO) where
     x1 <- interpret x
     lift $ print x1
 
-  fCall a = Interpretor $ do interpret a
+  fCall a = Interpretor $ do 
+    _ <- interpret a
+    return ()
 
   func0 fun = Interpretor $ do
     let newMapka = insert "#resvalue" None initContext

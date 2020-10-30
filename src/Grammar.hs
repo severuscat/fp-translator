@@ -17,8 +17,8 @@ data Statement
   | Expression Expression
   | Pass
   | F0CallS Name
-  | F1CallS Name Name
-  | F2CallS Name Name Name
+  | F1CallS Name Expression
+  | F2CallS Name Expression Expression
   deriving (Eq, Show)
 
 type Name = String

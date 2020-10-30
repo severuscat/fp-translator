@@ -2,8 +2,6 @@
 
 module DSL where
 
-import Data.Kind (Type)
-
 data MyValue = MInt Int | MBool Bool | MFloat Float | MString String | None deriving (Show)
 
 instance Eq MyValue where
@@ -65,30 +63,30 @@ class PyDsl expr where
   -- statement
   ifSt :: expr MyValue -> expr () -> expr ()
   while :: expr MyValue -> expr () -> expr ()
-  pass :: expr()
+  pass :: expr ()
   mprint :: expr MyValue -> expr ()
   func0 :: (expr Name -> expr ()) -> expr MyValue
   func1 :: (expr Name -> expr Name -> expr ()) -> expr MyValue -> expr MyValue
   func2 :: (expr Name -> expr Name -> expr Name -> expr ()) -> expr MyValue -> expr MyValue -> expr MyValue
   getVar :: expr String -> expr MyValue
+
   --Expression
-  fCall :: expr MyValue -> expr MyValue
-  myTrue :: expr MyValue --bool
-  myFalse :: expr MyValue --boolMyValue
-  not :: expr MyValue -> expr MyValue --bool
+  fCall :: expr MyValue -> expr ()
+  myTrue :: expr MyValue
+  myFalse :: expr MyValue
+  not :: expr MyValue -> expr MyValue
   add :: expr MyValue -> expr MyValue -> expr MyValue
   sub :: expr MyValue -> expr MyValue -> expr MyValue
-  mul :: expr MyValue -> expr MyValue -> expr MyValue --int | floaf
-  div :: expr MyValue -> expr MyValue -> expr MyValue --int | floaf
-  and :: expr MyValue -> expr MyValue -> expr MyValue --bool
-  or :: expr MyValue -> expr MyValue -> expr MyValue --bool
+  mul :: expr MyValue -> expr MyValue -> expr MyValue
+  div :: expr MyValue -> expr MyValue -> expr MyValue
+  and :: expr MyValue -> expr MyValue -> expr MyValue
+  or :: expr MyValue -> expr MyValue -> expr MyValue
   eq :: expr MyValue -> expr MyValue -> expr MyValue
   lessThan :: expr MyValue -> expr MyValue -> expr MyValue
   lessThanEq :: expr MyValue -> expr MyValue -> expr MyValue
   greaterThan :: expr MyValue -> expr MyValue -> expr MyValue
   greaterThanEq :: expr MyValue -> expr MyValue -> expr MyValue
 
---  myFloat :: Float -> expr MyValue
   myBool :: Bool -> expr MyValue
   myInt :: Int -> expr MyValue
   myStr :: String -> expr MyValue
