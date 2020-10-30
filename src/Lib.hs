@@ -2,8 +2,9 @@ module Lib where
 
 import DSL
 import Data.List.Split (splitOn)
-import Data.Map ((!), Map, empty, insertWith)
+import Data.Map ((!), Map, assocs, empty, fromList, insert, insertWith, keys, member)
 import Data.Text (Text)
+import Debug.Trace
 import Grammar as G
 import Lexer
 
@@ -73,26 +74,86 @@ initContextLib =
 
 gToDSLBlock :: PyDsl expr => [Statement] -> Lib.Context expr -> expr ()
 gToDSLBlock ((G.Assignment name e) : stms) context =
-  forInitVar name (gToDSLExpr e context) (\v -> 
-    gToDSLBlock stms context {varsMap = insertWith const name v (varsMap context)} )
-  `next` assignment (varsMap context ! name) (gToDSLExpr e context)
-  `next` gToDSLBlock stms context
+  forInitVar
+    name
+    (gToDSLExpr e context)
+    (\v -> gToDSLBlock stms (context {varsMap = insert name v (varsMap context)}))
+    `next` gToDSLBlock stms context
 gToDSLBlock ((G.If p thenst) : stms) context =
   ifSt (gToDSLExpr p context) (gToDSLBlock thenst context)
-  `next` gToDSLBlock stms context
+    `next` gToDSLBlock stms context
 gToDSLBlock ((G.While p thenst) : stms) context =
   while (gToDSLExpr p context) (gToDSLBlock thenst context)
-  `next` gToDSLBlock stms context
-gToDSLBlock ((G.Print e):stms) context = mprint (gToDSLExpr e context) `next` gToDSLBlock stms context
+    `next` gToDSLBlock stms context
+gToDSLBlock ((G.Print e) : stms) context =
+  mprint (gToDSLExpr e context)
+    `next` gToDSLBlock stms context
+gToDSLBlock ((G.Func0Def name block) : stms) context =
+  gToDSLBlock
+    stms
+    context
+      { func0Map =
+          insert
+            name
+            ( func0
+                ( \resvalue ->
+                    gToDSLBlock
+                      block
+                      ( context
+                          { varsMap =
+                              insert "#resvalue" resvalue empty
+                          }
+                      )
+                )
+            )
+            (func0Map context)
+      }
+gToDSLBlock ((G.Func1Def name a1 block) : stms) context =
+  gToDSLBlock
+    stms
+    context
+      { func1Map =
+          insert
+            name
+            ( func1
+                ( \resvalue arg1 ->
+                    gToDSLBlock
+                      block
+                      ( context
+                          { varsMap =
+                              fromList [("#resvalue", resvalue), (a1, arg1)]
+                          }
+                      )
+                )
+            )
+            (func1Map context)
+      }
+
+gToDSLBlock ((G.Func2Def name a1 a2 block) : stms) context =
+  gToDSLBlock
+    stms
+    context
+      { func2Map =
+          insert
+            name
+            ( func2
+                ( \resvalue arg1 arg2 ->
+                    gToDSLBlock
+                      block
+                      ( context
+                          { varsMap =
+                              fromList [("#resvalue", resvalue), (a1, arg1), (a2, arg2)]
+                          }
+                      )
+                )
+            )
+            (func2Map context)
+      }
 gToDSLBlock ((G.F0CallS name) : stms) context = end
 gToDSLBlock ((G.F1CallS name arg1) : stms) context = end
 gToDSLBlock ((G.F2CallS name arg1 arg2) : stms) context = end
-gToDSLBlock ((G.Func0Def name block) : stms) context = end
-gToDSLBlock ((G.Func1Def name arg1 block) : stms) context = end
-gToDSLBlock ((G.Func2Def name arg1 arg2 block) : stms) context = end
 gToDSLBlock (_ : stms) context = end
 gToDSLBlock [] context = end
-
 
 gToDSLExpr :: PyDsl expr => Expression -> Lib.Context expr -> expr MyValue
 gToDSLExpr (Add a b) context = gToDSLExpr a context `DSL.add` gToDSLExpr b context
@@ -110,12 +171,13 @@ gToDSLExpr (G.GreaterThanEq a b) context = gToDSLExpr a context `DSL.greaterThan
 gToDSLExpr (G.MyInt inum) _ = myInt inum
 gToDSLExpr (G.MyFloat fnum) _ = myFloat fnum
 gToDSLExpr (G.Str str) _ = myStr str
-gToDSLExpr G.MyTrue _ = myBool True
-gToDSLExpr G.MyFalse _ = myBool False
-gToDSLExpr (G.Var name) context = getVar $ varsMap context ! name
+gToDSLExpr (G.MyTrue) _ = myBool True
+gToDSLExpr (G.MyFalse) _ = myBool False
+gToDSLExpr (G.Var name) context = if member name (varsMap context) then getVar $ varsMap context ! name else error "no value with this name "
 gToDSLExpr (G.F0CallE name) context = func0Map context ! name
 gToDSLExpr (G.F1CallE name arg1) context = (func1Map context ! name) $ gToDSLExpr arg1 context
 gToDSLExpr (G.F2CallE name arg1 arg2) context = (func2Map context ! name) (gToDSLExpr arg1 context) (gToDSLExpr arg2 context)
+gToDSLExpr _ _ = myInt 0
 
 --gToDSLExpr G.ReadInt context = undefined
 --gToDSLExpr G.ReadStr context = undefined

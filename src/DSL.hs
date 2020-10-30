@@ -63,8 +63,6 @@ type Name = String
 
 class PyDsl expr where
   -- statement
-  assignment :: expr Name -> expr MyValue -> expr ()
-
   ifSt :: expr MyValue -> expr () -> expr ()
   while :: expr MyValue -> expr () -> expr ()
   pass :: expr()
@@ -95,8 +93,8 @@ class PyDsl expr where
   myInt :: Int -> expr MyValue
   myStr :: String -> expr MyValue
   myFloat :: Float -> expr MyValue
+  myNone :: expr MyValue
 
   next :: expr () -> expr () -> expr ()
   end :: expr ()
   forInitVar :: Name -> expr MyValue -> (expr String -> expr ()) -> expr ()
-  

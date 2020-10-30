@@ -10,11 +10,11 @@ import Control.Monad.Trans.State.Lazy
 import DSL
 import Data.Map
 import GHC.Base (when)
+import Debug.Trace
 
 type Context = Map String MyValue
 
 newtype Interpretor m s = Interpretor {interpret :: StateT Context m s}
-
 instance Monad (Interpretor IO) where
   (>>=) x func = Interpretor $ do
     x1 <- interpret x
@@ -33,8 +33,9 @@ instance Applicative (Interpretor IO) where
     y1 <- interpret y
     pure (f x1 y1)
 
+--type Context = Map String MyValue
 initContext :: Context
-initContext = empty
+initContext = empty 
 
 instance PyDsl (Interpretor IO) where
   greaterThan a b = do
@@ -96,15 +97,6 @@ instance PyDsl (Interpretor IO) where
     let newMapka = insert "#arg2" a2 $ insert "#arg1" a1 $ insert "#resvalue" None initContext
     lift $ execStateT (interpret $ fun (return "#arg1") (return "#arg2") (return "#resvalue")) newMapka >>= (\x -> return $ x ! "#resvalue")
 
-  assignment name val = Interpretor $ do
-    n <- interpret name
-    v <- interpret val
-    modify $ helper n v
-    where
-      helper :: Name -> MyValue -> Context -> Context
-      helper n v context = insertWith const n v context
---      helper n v context = error $ show context
-
   pass = Interpretor $ return ()
 
   while predicate stms = Interpretor $ do
@@ -127,19 +119,25 @@ instance PyDsl (Interpretor IO) where
   myFloat f = Interpretor $ return $ MFloat f
   myInt i = Interpretor $ return $ MInt i
   myStr s = Interpretor $ return $ MString s
+  myNone = Interpretor $ return None
 
   getVar valName = Interpretor $ do
     st <- get
     v <- interpret valName
-    return $ st ! v    
-
+--    trace ("G.getVar" ++ show st ++ "   " ++ show v) $ 
+    return $ st ! v
+-- newtype Interpretor m s = Interpretor {interpret :: StateT Context m s}
+--  forInitVar :: Name -> (Interpretor IO) MyValue -> ((Interpretor IO) String -> (Interpretor IO) ()) -> (Interpretor IO) ()
+-- type Context = Map String MyValue
   forInitVar name val func = Interpretor $ do
     st <- get
     v <- interpret val
     put $ insert name v st
+--    trace (show (assocs st)) $ 
     interpret $ func (Interpretor $ return name)
 
   next a b = do
     a
     b
+
   end = return ()
