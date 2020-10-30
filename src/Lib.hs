@@ -2,7 +2,7 @@ module Lib where
 
 import DSL
 import Data.List.Split (splitOn)
-import Data.Map ((!), Map, empty)
+import Data.Map ((!), Map, empty, insertWith)
 import Data.Text (Text)
 import Grammar as G
 import Lexer
@@ -73,22 +73,24 @@ initContextLib =
 
 gToDSLBlock :: PyDsl expr => [Statement] -> Lib.Context expr -> expr ()
 gToDSLBlock ((G.Assignment name e) : stms) context =
-  assignment (varsMap context ! name) (gToDSLExpr e context)
-    `next` gToDSLBlock stms context
+  forInitVar name (gToDSLExpr e context) (\v -> 
+    gToDSLBlock stms context {varsMap = insertWith const name v (varsMap context)} )
+  `next` assignment (varsMap context ! name) (gToDSLExpr e context)
+  `next` gToDSLBlock stms context
 gToDSLBlock ((G.If p thenst) : stms) context =
   ifSt (gToDSLExpr p context) (gToDSLBlock thenst context)
-    `next` gToDSLBlock stms context
+  `next` gToDSLBlock stms context
 gToDSLBlock ((G.While p thenst) : stms) context =
   while (gToDSLExpr p context) (gToDSLBlock thenst context)
-    `next` gToDSLBlock stms context
+  `next` gToDSLBlock stms context
 gToDSLBlock ((G.Print e):stms) context = mprint (gToDSLExpr e context) `next` gToDSLBlock stms context
-gToDSLBlock ((G.F0CallS name) : stms) context = gToDSLBlock stms context
-gToDSLBlock ((G.F1CallS name arg1) : stms) context = gToDSLBlock stms context
-gToDSLBlock ((G.F2CallS name arg1 arg2) : stms) context = gToDSLBlock stms context
-gToDSLBlock ((G.Func0Def name block) : stms) context = gToDSLBlock stms context
-gToDSLBlock ((G.Func1Def name arg1 block) : stms) context = gToDSLBlock stms context
-gToDSLBlock ((G.Func2Def name arg1 arg2 block) : stms) context = gToDSLBlock stms context
-gToDSLBlock (_ : stms) context = gToDSLBlock stms context
+gToDSLBlock ((G.F0CallS name) : stms) context = end
+gToDSLBlock ((G.F1CallS name arg1) : stms) context = end
+gToDSLBlock ((G.F2CallS name arg1 arg2) : stms) context = end
+gToDSLBlock ((G.Func0Def name block) : stms) context = end
+gToDSLBlock ((G.Func1Def name arg1 block) : stms) context = end
+gToDSLBlock ((G.Func2Def name arg1 arg2 block) : stms) context = end
+gToDSLBlock (_ : stms) context = end
 gToDSLBlock [] context = end
 
 

@@ -103,6 +103,7 @@ instance PyDsl (Interpretor IO) where
     where
       helper :: Name -> MyValue -> Context -> Context
       helper n v context = insertWith const n v context
+--      helper n v context = error $ show context
 
   pass = Interpretor $ return ()
 
@@ -114,11 +115,9 @@ instance PyDsl (Interpretor IO) where
       helper (MBool False) = False
       helper _ = error "trying to use not bool as a condition in while cycle. Sad news("
 
-  ifSt predicate stms = ifElseSt predicate stms pass
-
-  ifElseSt predicate thenstms elsestms = Interpretor $ do
+  ifSt predicate stms = Interpretor $ do
     p <- interpret predicate
-    if helper p then interpret thenstms else interpret elsestms
+    if helper p then interpret stms else interpret pass
     where
       helper (MBool True) = True
       helper (MBool False) = False
@@ -132,9 +131,14 @@ instance PyDsl (Interpretor IO) where
   getVar valName = Interpretor $ do
     st <- get
     v <- interpret valName
-    return $ st ! v
---let st = runIdentity (execStateT (interpret testWhile) empty)
---      snd (st ! "a") `shouldBe` HNumber (HInt 0)
+    return $ st ! v    
+
+  forInitVar name val func = Interpretor $ do
+    st <- get
+    v <- interpret val
+    put $ insert name v st
+    interpret $ func (Interpretor $ return name)
+
   next a b = do
     a
     b

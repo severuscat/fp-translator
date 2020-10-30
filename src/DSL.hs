@@ -66,7 +66,6 @@ class PyDsl expr where
   assignment :: expr Name -> expr MyValue -> expr ()
 
   ifSt :: expr MyValue -> expr () -> expr ()
-  ifElseSt :: expr MyValue -> expr () -> expr () -> expr ()
   while :: expr MyValue -> expr () -> expr ()
   pass :: expr()
   mprint :: expr MyValue -> expr ()
@@ -99,3 +98,5 @@ class PyDsl expr where
 
   next :: expr () -> expr () -> expr ()
   end :: expr ()
+  forInitVar :: Name -> expr MyValue -> (expr String -> expr ()) -> expr ()
+  

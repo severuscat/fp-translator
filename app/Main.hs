@@ -32,4 +32,5 @@ main = do
   print $ convertTokens $ alexScanTokens verySimpleTest
   print $ parseTokens $ convertTokens $ alexScanTokens verySimpleTest
   let prog = parseTokens $ convertTokens $ alexScanTokens verySimpleTest
+  print "success!"
   test $ gToDSLBlock prog initContextLib
