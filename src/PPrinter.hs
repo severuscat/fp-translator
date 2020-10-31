@@ -14,7 +14,7 @@ newtype Printer a = Printer {toString :: Int -> String}
 
 indent :: Int -> String
 indent 0 = ""
-indent x = " " ++ indent (x - 1)
+indent x = "    " ++ indent (x - 1)
 
 instance PyDsl Printer where
   greaterThan a b = Printer $ \tabs -> toString a tabs ++ " > " ++ toString b tabs
@@ -53,14 +53,16 @@ instance PyDsl Printer where
 
   getVar valName = Printer $ \tabs -> toString valName tabs
 
-  forInitVar name val _ = Printer $ \tabs -> 
-    case name of 
+  forInitVar name val func = Printer $ \tabs ->
+    case name of
       "#resvalue" -> indent tabs ++ "return " ++ toString val tabs
-      _ -> indent tabs ++ show name ++ " = " ++ toString val tabs
+                                     ++ toString (func (Printer $ const name)) tabs
+      _ -> indent tabs ++ show name ++ " = " ++ toString val tabs ++ "\n" ++
+              toString (func (Printer $ const name)) tabs
 
-  returnSt e = Printer $ \tabs -> indent tabs ++  toString e tabs
+  returnSt e = Printer $ \tabs -> indent tabs ++ toString e tabs
   end = Printer $ const ""
-  next a b = Printer $ \tabs -> indent tabs ++ toString a tabs ++ "\n" ++ toString b tabs
+  next a b = Printer $ \tabs -> toString a tabs ++ "\n" ++ toString b tabs
   readInt = Printer $ const "int(input())"
   readFloat = Printer $ const "float(input())"
   readStr = Printer $ const "input()"
@@ -82,9 +84,9 @@ instance PyDsl Printer where
           (Printer $ const "#resvalue")
           (Printer $ const arg1)
           (Printer $ const arg2)) 
-        (tabs + 1) 
-      
-  
+        (tabs + 1)
+
+
   func0 name fun = Printer $ \_ -> name ++ "()"      
   func1 name arg1Name fun arg1 = Printer $ \tabs -> name ++ "(" ++ toString arg1 tabs ++ ")"     
   func2 name arg1Name arg2Name fun arg1 arg2 = Printer $ \tabs -> 
