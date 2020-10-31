@@ -114,7 +114,7 @@ gToDSLBlock ((G.F2CallS name arg1 arg2) : stms) context =
 gToDSLBlock ((G.Return e) : stms) context = gToDSLBlock (G.Assignment "#resvalue" e : stms) context
 gToDSLBlock (G.Pass : stms) context = gToDSLBlock stms context
 gToDSLBlock ((G.Expression _) : stms) context = gToDSLBlock stms context
-gToDSLBlock [] context = end
+gToDSLBlock [] _ = end
 
 gToDSLExpr :: PyDsl expr => Expression -> GrammarToDSL.Context expr -> expr MyValue
 gToDSLExpr (Add a b) context = gToDSLExpr a context `DSL.add` gToDSLExpr b context

@@ -9,7 +9,6 @@ import Control.Monad.Trans.Class (lift)
 import Control.Monad.Trans.State.Strict
 import DSL
 import Data.Map
-import Debug.Trace
 import GHC.Base (when)
 
 type Context = Map String MyValue
@@ -140,8 +139,8 @@ instance PyDsl (Interpretor IO) where
 
   end = return ()
   readInt = Interpretor $ do
-    lift $ (readLn :: IO Int) >>= return . MInt
+    lift $ MInt <$> (readLn :: IO Int)
   readFloat = Interpretor $ do
-    lift $ (readLn :: IO Float) >>= return . MFloat
+    lift $ MFloat <$> (readLn :: IO Float)
   readStr = Interpretor $ do
-    lift $ (readLn :: IO String) >>= return . MString
+    lift $ MString <$> (readLn :: IO String)

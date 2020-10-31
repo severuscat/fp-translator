@@ -63,6 +63,7 @@ executable fp-translator-exe
       base >=4.7 && <5
     , fp-translator
     , transformers
+    , filepath
   default-language: Haskell2010
 
 test-suite fp-translator-test
