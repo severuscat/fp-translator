@@ -8,8 +8,6 @@ import Data.Map
 import Debug.Trace
 import GHC.Base (when)
 
---import X.
-
 type Context = Map String MyValue
 
 newtype Printer a = Printer {toString :: Int -> String}
@@ -55,9 +53,12 @@ instance PyDsl Printer where
 
   getVar valName = Printer $ \tabs -> toString valName tabs
 
-  forInitVar name val _ = Printer $ \tabs -> show name ++ " = " ++ toString val tabs
+  forInitVar name val _ = Printer $ \tabs -> 
+    case name of 
+      "#resvalue" -> indent tabs ++ "return " ++ toString val tabs
+      _ -> indent tabs ++ show name ++ " = " ++ toString val tabs
 
-  returnSt e = Printer $ \tabs -> indent tabs ++ toString e tabs
+  returnSt e = Printer $ \tabs -> indent tabs ++  toString e tabs
   end = Printer $ const ""
   next a b = Printer $ \tabs -> indent tabs ++ toString a tabs ++ "\n" ++ toString b tabs
   readInt = Printer $ const "int(input())"
@@ -72,7 +73,7 @@ instance PyDsl Printer where
       \tabs -> indent tabs ++ "def " ++ name ++ "(" ++ arg1 ++ "):\n" ++
         toString (fun 
           (Printer $ const "#resvalue")
-          (Printer $ const "#arg1") )
+          (Printer $ const arg1) )
         (tabs + 1)
   
   defFunc2 name arg1 arg2 fun = Printer $

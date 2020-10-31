@@ -49,6 +49,7 @@ gToDSLBlock ((G.Func0Def name block) : stms) context =
   let fun resvalue = gToDSLBlock block ( context { varsMap = insert "#resvalue" resvalue empty } )
     in defFunc0 name fun `next`
       gToDSLBlock stms context { func0Map = insert name ( func0 name fun ) (func0Map context) }
+gToDSLBlock ((G.Return e) : stms) context = gToDSLBlock (G.Assignment "#resvalue" e : stms) context
 gToDSLBlock ((G.Func1Def name a1 block):stms) context =
   let fun resvalue arg1 = gToDSLBlock block (context {varsMap = fromList [("#resvalue", resvalue), (a1, arg1)]})
    in defFunc1 name a1 fun `next`
@@ -67,7 +68,6 @@ gToDSLBlock ((G.F1CallS name arg1) : stms) context =
 gToDSLBlock ((G.F2CallS name arg1 arg2) : stms) context =
   fCall ((func2Map context ! name) (gToDSLExpr arg1 context) (gToDSLExpr arg2 context))
     `next` gToDSLBlock stms context
-gToDSLBlock ((G.Return e) : stms) context = gToDSLBlock (G.Assignment "#resvalue" e : stms) context
 gToDSLBlock (G.Pass : stms) context = gToDSLBlock stms context
 gToDSLBlock ((G.Expression _) : stms) context = gToDSLBlock stms context
 gToDSLBlock [] _ = end
