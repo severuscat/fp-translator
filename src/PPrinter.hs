@@ -81,8 +81,9 @@ instance PyDsl Printer where
           (Printer $ const "#resvalue")
           (Printer $ const arg1)
           (Printer $ const arg2)) 
-        (tabs + 1)     
-        
+        (tabs + 1) 
+      
+  
   func0 name fun = Printer $ \_ -> name ++ "()"      
   func1 name arg1Name fun arg1 = Printer $ \tabs -> name ++ "(" ++ toString arg1 tabs ++ ")"     
   func2 name arg1Name arg2Name fun arg1 arg2 = Printer $ \tabs -> 

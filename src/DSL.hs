@@ -67,7 +67,7 @@ instance Fractional MyValue where
 type Name = String
 
 class PyDsl expr where
-  -- statement
+--Statement
   ifSt :: expr MyValue -> expr () -> expr ()
   while :: expr MyValue -> expr () -> expr ()
   pass :: expr ()
@@ -81,7 +81,7 @@ class PyDsl expr where
   defFunc1 :: Name -> Name -> (expr Name -> expr Name -> expr ()) -> expr ()
   defFunc2 :: Name -> Name -> Name -> (expr Name -> expr Name -> expr Name -> expr ()) -> expr ()
 
-  --Expression
+--Expression
   fCall :: expr MyValue -> expr ()
   myTrue :: expr MyValue
   myFalse :: expr MyValue
@@ -107,7 +107,7 @@ class PyDsl expr where
 
   next :: expr () -> expr () -> expr ()
   end :: expr ()
-  forInitVar :: Name -> expr MyValue -> (expr String -> expr ()) -> expr ()
+  forInitVar :: Name -> expr MyValue -> (expr Name -> expr ()) -> expr ()
   readInt :: expr MyValue
   readStr :: expr MyValue
   readFloat :: expr MyValue

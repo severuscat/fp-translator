@@ -1,8 +1,11 @@
 module GrammarToDSL where
 
+import Prelude hiding (lookup)
+
 import Grammar as G
 import DSL
-import Data.Map ((!), Map, empty, fromList, insert, member)
+import Data.Map ((!), Map, empty, fromList, insert, member, lookup)
+import Data.Maybe (fromMaybe)
 
 wrap :: PyDsl expr => MyValue -> expr MyValue
 wrap (MBool b) = myBool b
@@ -87,10 +90,12 @@ gToDSLExpr (G.MyFloat fnum) _ = myFloat fnum
 gToDSLExpr (G.MyStr str) _ = myStr (init $ tail str)
 gToDSLExpr G.MyTrue _ = myBool True
 gToDSLExpr G.MyFalse _ = myBool False
-gToDSLExpr (G.Var name) context = if member name (varsMap context) then getVar $ varsMap context ! name else error "no value with this name "
+gToDSLExpr (G.Var name) context = getVar (extractVar name (varsMap context)) -- if member name (varsMap context) then getVar $ varsMap context ! name else error "no value with this name "
 gToDSLExpr (G.F0CallE name) context = func0Map context ! name
 gToDSLExpr (G.F1CallE name arg1) context = (func1Map context ! name) $ gToDSLExpr arg1 context
 gToDSLExpr (G.F2CallE name arg1 arg2) context = (func2Map context ! name) (gToDSLExpr arg1 context) (gToDSLExpr arg2 context)
 gToDSLExpr G.ReadInt _ = readInt
 gToDSLExpr G.ReadStr _ = readStr
 gToDSLExpr G.ReadFloat _ = readFloat
+
+extractVar name context = fromMaybe (error ("no value with this name: " ++ name)) (lookup name context)
