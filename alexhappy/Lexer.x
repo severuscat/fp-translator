@@ -41,7 +41,7 @@ tokens :-
     $alpha [$alpha $digit]* {\s -> Name s}
     $digit+                 {\s -> MyInt (read s :: Int)}
     $digit+ "\." $digit+    {\s -> MyFloat (read s :: Float)}
-    \"[^\"]\"               {\s -> Str s}
+    \"[^\"]*\"               {\s -> Str s}
 {
 data Token =
   And

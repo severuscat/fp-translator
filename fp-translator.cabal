@@ -76,4 +76,8 @@ test-suite fp-translator-test
   build-depends:
       base >=4.7 && <5
     , fp-translator
+    , transformers
+    , test-framework-hunit
+    , test-framework
+    , HUnit
   default-language: Haskell2010

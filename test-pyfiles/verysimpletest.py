@@ -1,3 +1,4 @@
+print "this is verysimpletest.py"
 def x():
     c = 1
     while c < 10:

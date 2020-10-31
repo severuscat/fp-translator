@@ -1,12 +1,4 @@
-def p():
-    x = 11
-    while x == 11:
-        x = 110
-        print x
-        x = 10
-        print x
-        x = 12
-    return 11111
-w = p()
-print w
-print int(input())
+print "this is simpletest.py"
+def f(a):
+    print a
+f(int(input()))
