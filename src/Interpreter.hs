@@ -91,13 +91,13 @@ instance PyDsl (Interpretor IO) where
   func1 _ _ fun arg = Interpretor $ do
     a <- interpret arg
     let newMapka = insert "#arg1" a $ insert "#resvalue" None initContext
-    lift $ execStateT (interpret $ fun (return "#resvalue") (return "#arg1") ) newMapka >>= (\x -> return $ x ! "#resvalue")
+    lift $ execStateT (interpret $ fun (return "#resvalue") (return "#arg1")) newMapka >>= (\x -> return $ x ! "#resvalue")
 
   func2 _ _ _ fun arg1 arg2 = Interpretor $ do
     a1 <- interpret arg1
     a2 <- interpret arg2
     let newMapka = insert "#arg1" a1 $ insert "#arg2" a2 $ insert "#resvalue" None initContext
-    lift $ execStateT (interpret $ fun  (return "#resvalue") (return "#arg1") (return "#arg2") ) newMapka >>= (\x -> return $ x ! "#resvalue")
+    lift $ execStateT (interpret $ fun (return "#resvalue") (return "#arg1") (return "#arg2")) newMapka >>= (\x -> return $ x ! "#resvalue")
 
   pass = Interpretor $ return ()
 
@@ -136,7 +136,9 @@ instance PyDsl (Interpretor IO) where
   next a b = do
     a
     b
-
+  defFunc0 _ _ = return ()
+  defFunc1 _ _ _ = return ()
+  defFunc2 _ _ _ _ = return ()
   end = return ()
   readInt = Interpretor $ do
     lift $ MInt <$> (readLn :: IO Int)
