@@ -3,15 +3,14 @@ module GrammarToDSL where
 import Grammar as G
 import DSL
 import Data.Map ((!), Map, empty, fromList, insert, member)
-import Lib
 
 wrap :: PyDsl expr => MyValue -> expr MyValue
 wrap (MBool b) = myBool b
 wrap (MInt b) = myInt b
 wrap (MFloat b) = myFloat b
 wrap (MString b) = myStr b
+wrap None = myNone
 
---transl (G.Name s) = s
 data Context expr = Context
   { varsMap :: Map String (expr String),
     func0Map :: Map String (expr MyValue),
@@ -113,7 +112,8 @@ gToDSLBlock ((G.F2CallS name arg1 arg2) : stms) context =
   fCall ((func2Map context ! name) (gToDSLExpr arg1 context) (gToDSLExpr arg2 context))
     `next` gToDSLBlock stms context
 gToDSLBlock ((G.Return e) : stms) context = gToDSLBlock (G.Assignment "#resvalue" e : stms) context
-gToDSLBlock (_ : stms) context = end
+gToDSLBlock (G.Pass : stms) context = gToDSLBlock stms context
+gToDSLBlock ((G.Expression _) : stms) context = gToDSLBlock stms context
 gToDSLBlock [] context = end
 
 gToDSLExpr :: PyDsl expr => Expression -> GrammarToDSL.Context expr -> expr MyValue
@@ -131,7 +131,7 @@ gToDSLExpr (G.GreaterThan a b) context = gToDSLExpr a context `DSL.greaterThan` 
 gToDSLExpr (G.GreaterThanEq a b) context = gToDSLExpr a context `DSL.greaterThanEq` gToDSLExpr b context
 gToDSLExpr (G.MyInt inum) _ = myInt inum
 gToDSLExpr (G.MyFloat fnum) _ = myFloat fnum
-gToDSLExpr (G.MyStr str) _ = myStr str
+gToDSLExpr (G.MyStr str) _ = myStr (init $ tail str)
 gToDSLExpr G.MyTrue _ = myBool True
 gToDSLExpr G.MyFalse _ = myBool False
 gToDSLExpr (G.Var name) context = if member name (varsMap context) then getVar $ varsMap context ! name else error "no value with this name "
@@ -139,3 +139,5 @@ gToDSLExpr (G.F0CallE name) context = func0Map context ! name
 gToDSLExpr (G.F1CallE name arg1) context = (func1Map context ! name) $ gToDSLExpr arg1 context
 gToDSLExpr (G.F2CallE name arg1 arg2) context = (func2Map context ! name) (gToDSLExpr arg1 context) (gToDSLExpr arg2 context)
 gToDSLExpr G.ReadInt _ = readInt
+gToDSLExpr G.ReadStr _ = readStr
+gToDSLExpr G.ReadFloat _ = readFloat

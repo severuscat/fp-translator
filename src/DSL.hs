@@ -7,7 +7,7 @@ data MyValue = MInt Int | MBool Bool | MFloat Float | MString String | None
 instance Show MyValue where
     show (MInt a) = show a
     show (MFloat a) = show a
-    show (MString a) = show $ init $ tail a
+    show (MString a) = show a
     show (MBool a) = show a
     show None = "none"
 
@@ -78,7 +78,7 @@ class PyDsl expr where
   getVar :: expr String -> expr MyValue
 
   --Expression
-  fCall :: expr MyValue -> expr ()
+  fCall ::  expr MyValue -> expr ()
   myTrue :: expr MyValue
   myFalse :: expr MyValue
   not :: expr MyValue -> expr MyValue
@@ -105,3 +105,5 @@ class PyDsl expr where
   end :: expr ()
   forInitVar :: Name -> expr MyValue -> (expr String -> expr ()) -> expr ()
   readInt :: expr MyValue
+  readStr :: expr MyValue
+  readFloat :: expr MyValue
