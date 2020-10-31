@@ -2,7 +2,14 @@
 
 module DSL where
 
-data MyValue = MInt Int | MBool Bool | MFloat Float | MString String | None deriving (Show)
+data MyValue = MInt Int | MBool Bool | MFloat Float | MString String | None
+
+instance Show MyValue where
+    show (MInt a) = show a
+    show (MFloat a) = show a
+    show (MString a) = show $ init $ tail a
+    show (MBool a) = show a
+    show None = "none"
 
 instance Eq MyValue where
   (==) (MString a) (MString b) = a == b
@@ -97,3 +104,4 @@ class PyDsl expr where
   next :: expr () -> expr () -> expr ()
   end :: expr ()
   forInitVar :: Name -> expr MyValue -> (expr String -> expr ()) -> expr ()
+  readInt :: expr MyValue

@@ -9,3 +9,4 @@ def p():
     return 11111
 w = p()
 print w
+print int(input())

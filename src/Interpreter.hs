@@ -139,3 +139,5 @@ instance PyDsl (Interpretor IO) where
     b
 
   end = return ()
+  readInt = Interpretor $ do
+    lift $ (readLn :: IO Int) >>= return . MInt

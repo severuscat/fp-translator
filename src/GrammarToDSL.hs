@@ -138,3 +138,4 @@ gToDSLExpr (G.Var name) context = if member name (varsMap context) then getVar $
 gToDSLExpr (G.F0CallE name) context = func0Map context ! name
 gToDSLExpr (G.F1CallE name arg1) context = (func1Map context ! name) $ gToDSLExpr arg1 context
 gToDSLExpr (G.F2CallE name arg1 arg2) context = (func2Map context ! name) (gToDSLExpr arg1 context) (gToDSLExpr arg2 context)
+gToDSLExpr G.ReadInt _ = readInt
