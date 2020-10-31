@@ -50,12 +50,12 @@ instance PyDsl Printer where
   myBool b = Printer $ \_ -> show b
   myFloat f = Printer $ \_ -> show f
   myInt i = Printer $ \_ -> show i
-  myStr s = Printer $ const s
+  myStr s = Printer $ \_ -> show s
   myNone = Printer $ const "none"
 
   getVar valName = Printer $ \tabs -> toString valName tabs
 
-  forInitVar name val _ = Printer $ \tabs -> show name ++ " = " ++ toString val tabs ++ toString val tabs
+  forInitVar name val _ = Printer $ \tabs -> show name ++ " = " ++ toString val tabs
 
   returnSt e = Printer $ \tabs -> indent tabs ++ toString e tabs
   end = Printer $ const ""
@@ -63,3 +63,27 @@ instance PyDsl Printer where
   readInt = Printer $ const "int(input())"
   readFloat = Printer $ const "float(input())"
   readStr = Printer $ const "input()"
+
+  defFunc0 name fun = Printer $
+    \tabs -> indent tabs ++ "def " ++ name ++ "():\n" ++
+      toString (fun (Printer $ const "#resvalue")) (tabs + 1)
+  
+  defFunc1 name arg1 fun = Printer $
+      \tabs -> indent tabs ++ "def " ++ name ++ "(" ++ arg1 ++ "):\n" ++
+        toString (fun 
+          (Printer $ const "#resvalue")
+          (Printer $ const "#arg1") )
+        (tabs + 1)
+  
+  defFunc2 name arg1 arg2 fun = Printer $
+      \tabs -> indent tabs ++ "def " ++ name ++ "(" ++ arg1 ++ ", " ++ arg2 ++ "):\n" ++
+        toString (fun 
+          (Printer $ const "#resvalue")
+          (Printer $ const arg1)
+          (Printer $ const arg2)) 
+        (tabs + 1)     
+        
+  func0 name fun = Printer $ \_ -> name ++ "()"      
+  func1 name arg1Name fun arg1 = Printer $ \tabs -> name ++ "(" ++ toString arg1 tabs ++ ")"     
+  func2 name arg1Name arg2Name fun arg1 arg2 = Printer $ \tabs -> 
+    name ++ "(" ++ toString arg1 tabs ++ ", " ++ toString arg2 tabs ++ ")"    

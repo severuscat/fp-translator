@@ -5,5 +5,5 @@ def x():
         print c
         c = c + 1
     return c
-print "3"
+print "300"
 print x()

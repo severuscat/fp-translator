@@ -84,16 +84,16 @@ instance PyDsl (Interpretor IO) where
     _ <- interpret a
     return ()
 
-  func0 fun = Interpretor $ do
+  func0 _ fun = Interpretor $ do
     let newMapka = insert "#resvalue" None initContext
     lift $ execStateT (interpret $ fun $ return "#resvalue") newMapka >>= (\x -> return $ x ! "#resvalue")
 
-  func1 fun arg = Interpretor $ do
+  func1 _ _ fun arg = Interpretor $ do
     a <- interpret arg
     let newMapka = insert "#arg1" a $ insert "#resvalue" None initContext
     lift $ execStateT (interpret $ fun (return "#resvalue") (return "#arg1") ) newMapka >>= (\x -> return $ x ! "#resvalue")
 
-  func2 fun arg1 arg2 = Interpretor $ do
+  func2 _ _ _ fun arg1 arg2 = Interpretor $ do
     a1 <- interpret arg1
     a2 <- interpret arg2
     let newMapka = insert "#arg1" a1 $ insert "#arg2" a2 $ insert "#resvalue" None initContext

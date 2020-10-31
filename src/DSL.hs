@@ -72,13 +72,17 @@ class PyDsl expr where
   while :: expr MyValue -> expr () -> expr ()
   pass :: expr ()
   mprint :: expr MyValue -> expr ()
-  func0 :: (expr Name -> expr ()) -> expr MyValue
-  func1 :: (expr Name -> expr Name -> expr ()) -> expr MyValue -> expr MyValue
-  func2 :: (expr Name -> expr Name -> expr Name -> expr ()) -> expr MyValue -> expr MyValue -> expr MyValue
+  func0 :: Name -> (expr Name -> expr ()) -> expr MyValue
+  func1 :: Name -> Name -> (expr Name -> expr Name -> expr ()) -> expr MyValue -> expr MyValue
+  func2 :: Name -> Name -> Name -> (expr Name -> expr Name -> expr Name -> expr ()) -> expr MyValue -> expr MyValue -> expr MyValue
   getVar :: expr String -> expr MyValue
 
+  defFunc0 :: Name -> (expr Name -> expr ()) -> expr ()
+  defFunc1 :: Name -> Name -> (expr Name -> expr Name -> expr ()) -> expr ()
+  defFunc2 :: Name -> Name -> Name -> (expr Name -> expr Name -> expr Name -> expr ()) -> expr ()
+
   --Expression
-  fCall ::  expr MyValue -> expr ()
+  fCall :: expr MyValue -> expr ()
   myTrue :: expr MyValue
   myFalse :: expr MyValue
   not :: expr MyValue -> expr MyValue

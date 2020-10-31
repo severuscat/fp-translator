@@ -43,65 +43,18 @@ gToDSLBlock ((G.Print e) : stms) context =
   mprint (gToDSLExpr e context)
     `next` gToDSLBlock stms context
 gToDSLBlock ((G.Func0Def name block) : stms) context =
-  gToDSLBlock
-    stms
-    context
-      { func0Map =
-          insert
-            name
-            ( func0
-                ( \resvalue ->
-                    gToDSLBlock
-                      block
-                      ( context
-                          { varsMap =
-                              insert "#resvalue" resvalue empty
-                          }
-                      )
-                )
-            )
-            (func0Map context)
-      }
-gToDSLBlock ((G.Func1Def name a1 block) : stms) context =
-  gToDSLBlock
-    stms
-    context
-      { func1Map =
-          insert
-            name
-            ( func1
-                ( \resvalue arg1 ->
-                    gToDSLBlock
-                      block
-                      ( context
-                          { varsMap =
-                              fromList [("#resvalue", resvalue), (a1, arg1)]
-                          }
-                      )
-                )
-            )
-            (func1Map context)
-      }
+  let fun resvalue = gToDSLBlock block ( context { varsMap = insert "#resvalue" resvalue empty } )
+    in defFunc0 name fun `next`
+      gToDSLBlock stms context { func0Map = insert name ( func0 name fun ) (func0Map context) }
+gToDSLBlock ((G.Func1Def name a1 block):stms) context =
+  let fun resvalue arg1 = gToDSLBlock block (context {varsMap = fromList [("#resvalue", resvalue), (a1, arg1)]})
+   in defFunc1 name a1 fun `next`
+      gToDSLBlock stms context {func1Map = insert name (func1 name a1 fun) (func1Map context)}
 gToDSLBlock ((G.Func2Def name a1 a2 block) : stms) context =
-  gToDSLBlock
-    stms
-    context
-      { func2Map =
-          insert
-            name
-            ( func2
-                ( \resvalue arg1 arg2 ->
-                    gToDSLBlock
-                      block
-                      ( context
-                          { varsMap =
-                              fromList [("#resvalue", resvalue), (a1, arg1), (a2, arg2)]
-                          }
-                      )
-                )
-            )
-            (func2Map context)
-      }
+  let fun resvalue arg1 arg2 = gToDSLBlock block ( context { varsMap = fromList [("#resvalue", resvalue), (a1, arg1), (a2, arg2)] })
+   in defFunc2 name a1 a2 fun `next`
+      gToDSLBlock stms
+        context { func2Map = insert name (func2 name a1 a2 fun) (func2Map context) }
 gToDSLBlock ((G.F0CallS name) : stms) context =
   fCall (func0Map context ! name)
     `next` gToDSLBlock stms context
