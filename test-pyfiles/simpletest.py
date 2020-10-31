@@ -1,16 +1,11 @@
-x = 11
 def p():
-    while True:
+    x = 11
+    while x == 11:
         x = 110
-        if t == 1:
-            t = 1020
-            t = t + 11
-            k = int(input())
-            pass
-    return x > 3
-w = 91
-if x > 1:
-    x = 2
+        print x
+        x = 10
+        print x
+        x = 12
+    return 11111
 w = p()
-s = 1
-s = s + 10 * p
+print w

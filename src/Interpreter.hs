@@ -9,12 +9,13 @@ import Control.Monad.Trans.Class (lift)
 import Control.Monad.Trans.State.Strict
 import DSL
 import Data.Map
-import GHC.Base (when)
 import Debug.Trace
+import GHC.Base (when)
 
 type Context = Map String MyValue
 
 newtype Interpretor m s = Interpretor {interpret :: StateT Context m s}
+
 instance Monad (Interpretor IO) where
   (>>=) x func = Interpretor $ do
     x1 <- interpret x
@@ -35,7 +36,7 @@ instance Applicative (Interpretor IO) where
 
 --type Context = Map String MyValue
 initContext :: Context
-initContext = empty 
+initContext = empty
 
 instance PyDsl (Interpretor IO) where
   greaterThan a b = do
@@ -80,7 +81,7 @@ instance PyDsl (Interpretor IO) where
     x1 <- interpret x
     lift $ print x1
 
-  fCall a = Interpretor $ do 
+  fCall a = Interpretor $ do
     _ <- interpret a
     return ()
 
@@ -126,18 +127,13 @@ instance PyDsl (Interpretor IO) where
   getVar valName = Interpretor $ do
     st <- get
     v <- interpret valName
---    trace ("G.getVar" ++ show st ++ "   " ++ show v) $ 
     return $ st ! v
--- newtype Interpretor m s = Interpretor {interpret :: StateT Context m s}
---  forInitVar :: Name -> (Interpretor IO) MyValue -> ((Interpretor IO) String -> (Interpretor IO) ()) -> (Interpretor IO) ()
--- type Context = Map String MyValue
   forInitVar name val func = Interpretor $ do
     st <- get
     v <- interpret val
     put $ insert name v st
---    trace (show (assocs st)) $ 
     interpret $ func (Interpretor $ return name)
-
+  returnSt = id
   next a b = do
     a
     b

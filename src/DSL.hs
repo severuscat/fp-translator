@@ -86,6 +86,7 @@ class PyDsl expr where
   lessThanEq :: expr MyValue -> expr MyValue -> expr MyValue
   greaterThan :: expr MyValue -> expr MyValue -> expr MyValue
   greaterThanEq :: expr MyValue -> expr MyValue -> expr MyValue
+  returnSt :: expr MyValue -> expr MyValue
 
   myBool :: Bool -> expr MyValue
   myInt :: Int -> expr MyValue

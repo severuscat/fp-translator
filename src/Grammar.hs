@@ -43,7 +43,7 @@ data Expression
   | GreaterThanEq Expression Expression --bool
   | MyFloat Float --float
   | MyInt Int --int
-  | Str String --str
+  | MyStr String --str
   | Var Name --int | str | float | notExist
   | ReadInt
   | ReadFloat

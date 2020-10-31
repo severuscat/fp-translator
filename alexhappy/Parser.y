@@ -123,6 +123,7 @@ atom:
 	| "False"					{ G.MyFalse}
 	| int						{ G.MyInt $1}
 	| float						{ G.MyFloat $1}
+	| str						{ G.MyStr $1 }
 block:
 	NEWLINE INDENT statements DEDENT	 	{ $3 }
 {

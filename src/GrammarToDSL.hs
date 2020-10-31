@@ -2,7 +2,6 @@ module GrammarToDSL where
 
 import Grammar as G
 import DSL
-import Data.List.Split (splitOn)
 import Data.Map ((!), Map, empty, fromList, insert, member)
 import Lib
 
@@ -29,13 +28,12 @@ initContextLib =
       func2Map = empty
     }
 
-gToDSLBlock :: PyDsl expr => [Statement] -> Lib.Context expr -> expr ()
+gToDSLBlock :: PyDsl expr => [Statement] -> GrammarToDSL.Context expr -> expr ()
 gToDSLBlock ((G.Assignment name e) : stms) context =
   forInitVar
     name
     (gToDSLExpr e context)
     (\v -> gToDSLBlock stms (context {varsMap = insert name v (varsMap context)}))
-    `next` gToDSLBlock stms context
 gToDSLBlock ((G.If p thenst) : stms) context =
   ifSt (gToDSLExpr p context) (gToDSLBlock thenst context)
     `next` gToDSLBlock stms context
@@ -118,7 +116,7 @@ gToDSLBlock ((G.Return e) : stms) context = gToDSLBlock (G.Assignment "#resvalue
 gToDSLBlock (_ : stms) context = end
 gToDSLBlock [] context = end
 
-gToDSLExpr :: PyDsl expr => Expression -> Lib.Context expr -> expr MyValue
+gToDSLExpr :: PyDsl expr => Expression -> GrammarToDSL.Context expr -> expr MyValue
 gToDSLExpr (Add a b) context = gToDSLExpr a context `DSL.add` gToDSLExpr b context
 gToDSLExpr (Sub a b) context = gToDSLExpr a context `DSL.sub` gToDSLExpr b context
 gToDSLExpr (G.Mul a b) context = gToDSLExpr a context `DSL.mul` gToDSLExpr b context
@@ -133,7 +131,7 @@ gToDSLExpr (G.GreaterThan a b) context = gToDSLExpr a context `DSL.greaterThan` 
 gToDSLExpr (G.GreaterThanEq a b) context = gToDSLExpr a context `DSL.greaterThanEq` gToDSLExpr b context
 gToDSLExpr (G.MyInt inum) _ = myInt inum
 gToDSLExpr (G.MyFloat fnum) _ = myFloat fnum
-gToDSLExpr (G.Str str) _ = myStr str
+gToDSLExpr (G.MyStr str) _ = myStr str
 gToDSLExpr G.MyTrue _ = myBool True
 gToDSLExpr G.MyFalse _ = myBool False
 gToDSLExpr (G.Var name) context = if member name (varsMap context) then getVar $ varsMap context ! name else error "no value with this name "

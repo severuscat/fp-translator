@@ -3,6 +3,6 @@ def x():
     while c < 10:
         print c
         c = c + 1
-    return 0
-print 3
-x()
+    return c
+print "3"
+print x()
