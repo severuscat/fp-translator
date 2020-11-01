@@ -1,7 +1,13 @@
+{-# LANGUAGE DeriveAnyClass #-}
+
 module Lib where
 
 import Lexer
 import Data.List.Split (splitOn)
+import Data.Data (Typeable)
+import Control.Exception.Base (Exception, throw)
+
+data ParseErrors = IncorrectNLeadindSpaces deriving (Show, Typeable, Exception)
 
 convertTokens :: [Token] -> [Token]
 convertTokens lst = convertTokens2 $ markIndent 0 $ convertTokenSplitted (splitOn [Newline] lst)
@@ -15,7 +21,7 @@ convertTokens lst = convertTokens2 $ markIndent 0 $ convertTokenSplitted (splitO
             _ ->
               if dif < 0
                 then (replicate (- dif) Dedent ++ [Newline] ++ xss) ++ [Newline] ++ markIndent newLvl xs
-                else error "incorrect number of spaces in the beginning of this line"
+                else throw IncorrectNLeadindSpaces
     markIndent _ _ = []
     convertTokenSplitted :: [[Token]] -> [[Token]]
     convertTokenSplitted (x : xs) = replaceWithNTabs 0 x : convertTokenSplitted xs
@@ -24,7 +30,7 @@ convertTokens lst = convertTokens2 $ markIndent 0 $ convertTokenSplitted (splitO
     replaceWithNTabs n (Space : xs) = replaceWithNTabs (n + 1) xs
     replaceWithNTabs n rest = case mod n 4 of
       0 -> Tab (n `Prelude.div` 4) : filter (\x -> x /= Space && x /= TEmpty) rest
-      _ -> error "incorrect number of spaces in the beginning of this line"
+      _ -> throw IncorrectNLeadindSpaces
 
 convertTokens2 :: [Token] -> [Token]
 convertTokens2 [] = []

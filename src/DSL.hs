@@ -1,8 +1,15 @@
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE DeriveAnyClass #-}
 
 module DSL where
 
+import Data.Data (Typeable)
+import Control.Exception.Base (Exception, throw)
+
+
 data MyValue = MInt Int | MBool Bool | MFloat Float | MString String | None
+
+data MException = NoValue | BoolExpected | CantMatchTypes deriving (Show, Typeable, Exception)
 
 instance Show MyValue where
     show (MInt a) = show a
@@ -17,41 +24,41 @@ instance Eq MyValue where
   (==) (MInt a) (MFloat b) = fromIntegral a == b
   (==) (MFloat a) (MInt b) = a == fromIntegral b
   (==) (MFloat a) (MFloat b) = a == b
-  (==) _ _ = errorDifferentTypes
+  (==) _ _ = throw CantMatchTypes
 
 instance Ord MyValue where
   (<=) (MInt a) (MInt b) = a <= b
   (<=) (MInt a) (MFloat b) = fromIntegral a <= b
   (<=) (MFloat a) (MInt b) = a <= fromIntegral b
   (<=) (MFloat a) (MFloat b) = a <= b
-  (<=) _ _ = errorDifferentTypes
+  (<=) _ _ = throw CantMatchTypes
 
 instance Num MyValue where
   (+) (MInt x) (MInt y) = MInt $ x + y
   (+) (MInt x) (MFloat y) = MFloat $ fromIntegral x + y
   (+) (MFloat x) (MFloat y) = MFloat $ x + y
   (+) (MFloat x) (MInt y) = MFloat $ x + fromIntegral y
-  (+) _ _ = errorDifferentTypes
+  (+) _ _ = throw CantMatchTypes
 
   (*) (MInt x) (MInt y) = MInt $ x * y
   (*) (MInt x) (MFloat y) = MFloat $ fromIntegral x * y
   (*) (MFloat x) (MFloat y) = MFloat $ x * y
   (*) (MFloat x) (MInt y) = MFloat $ x * fromIntegral y
-  (*) _ _ =errorDifferentTypes
+  (*) _ _ = throw CantMatchTypes
 
   (-) (MInt x) (MInt y) = MInt $ x - y
   (-) (MInt x) (MFloat y) = MFloat $ fromIntegral x - y
   (-) (MFloat x) (MFloat y) = MFloat $ x - y
   (-) (MFloat x) (MInt y) = MFloat $ x - fromIntegral y
-  (-) _ _ = errorDifferentTypes
+  (-) _ _ = throw CantMatchTypes
 
   abs (MInt x) = MInt $ abs x
   abs (MFloat x) = MFloat $ abs x
-  abs _ = errorDifferentTypes
+  abs _ = throw CantMatchTypes
 
   signum (MInt x) = MInt $ signum x
   signum (MFloat x) = MFloat $ signum x
-  signum _ = errorDifferentTypes
+  signum _ = throw CantMatchTypes
 
   fromInteger x = MInt $ fromInteger x
 
@@ -62,7 +69,7 @@ instance Fractional MyValue where
   (/) (MInt x) (MFloat y) = MFloat $ fromIntegral x / y
   (/) (MFloat x) (MFloat y) = MFloat $ x / y
   (/) (MFloat x) (MInt y) = MFloat $ x / fromIntegral y
-  (/) _ _ = errorDifferentTypes
+  (/) _ _ = throw CantMatchTypes
 
 type Name = String
 
@@ -111,9 +118,3 @@ class PyDsl expr where
   readInt :: expr MyValue
   readStr :: expr MyValue
   readFloat :: expr MyValue
-
-errorDifferentTypes :: a
-errorDifferentTypes = error "cant match types in operation"
-
-errorNoValue ::a
-errorNoValue = error "no such a value defined, fail"

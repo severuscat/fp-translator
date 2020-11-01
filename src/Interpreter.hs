@@ -11,6 +11,7 @@ import Data.Map
 import GHC.Base (when)
 import DSL
 import Data.Functor.Identity (Identity)
+import Control.Exception.Base (throw)
 
 type Context = Map String MyValue
 
@@ -41,7 +42,7 @@ instance WrapperTestIO m => Monad (Interpretor m) where
     interpret $ func x1
 
 instance WrapperTestIO m => MonadFail (Interpretor m) where
-  fail _ = error "trying to get MBool in logical operation, but failed. Ha-ha, loser!"
+  fail _ = throw BoolExpected
 
 instance WrapperTestIO m => Functor (Interpretor m) where
   fmap f = Interpretor . fmap f . interpret
@@ -127,7 +128,7 @@ instance WrapperTestIO m => PyDsl (Interpretor m) where
     where
       helper (MBool True) = True
       helper (MBool False) = False
-      helper _ = error "trying to use not bool as a condition in while cycle. Sad news("
+      helper _ = throw BoolExpected
 
   ifSt predicate stms = Interpretor $ do
     p <- interpret predicate
@@ -135,7 +136,7 @@ instance WrapperTestIO m => PyDsl (Interpretor m) where
     where
       helper (MBool True) = True
       helper (MBool False) = False
-      helper _ = error "trying to use not bool as a condition in if statement. Sad news("
+      helper _ = throw BoolExpected
 
   myBool b = Interpretor $ return $ MBool b
   myFloat f = Interpretor $ return $ MFloat f

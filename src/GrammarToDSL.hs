@@ -6,6 +6,7 @@ import Grammar as G
 import DSL
 import Data.Map ((!), Map, empty, fromList, insert, lookup)
 import Data.Maybe (fromMaybe)
+import Control.Exception.Base (throw)
 
 
 data Context expr = Context
@@ -92,4 +93,4 @@ gToDSLExpr G.ReadInt _ = readInt
 gToDSLExpr G.ReadStr _ = readStr
 gToDSLExpr G.ReadFloat _ = readFloat
 
-extractVar name context = fromMaybe errorNoValue (lookup name context)
+extractVar name context = fromMaybe (throw NoValue) (lookup name context)
