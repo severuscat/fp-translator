@@ -81,4 +81,5 @@ test-suite fp-translator-test
     , test-framework-hunit
     , test-framework
     , HUnit
+    , hspec
   default-language: Haskell2010

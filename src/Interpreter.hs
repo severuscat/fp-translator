@@ -10,23 +10,43 @@ import Control.Monad.Trans.State.Strict
 import DSL
 import Data.Map
 import GHC.Base (when)
+import Data.Functor.Identity (Identity)
 
 type Context = Map String MyValue
 
 newtype Interpretor m s = Interpretor {interpret :: StateT Context m s}
 
-instance Monad (Interpretor IO) where
+class Monad m => WrapperTestIO m where
+  out :: String -> m ()
+  rint :: m Int
+  rfloat :: m Float
+  rstr :: m String
+
+instance WrapperTestIO IO where
+  out = putStrLn
+  rint = readLn :: IO Int
+  rfloat = readLn :: IO Float
+  rstr = readLn :: IO String
+
+instance WrapperTestIO Identity where
+  out = \_ -> return () 
+  rint = return 1
+  rfloat = return 1.0
+  rstr = return ""
+
+
+instance WrapperTestIO m => Monad (Interpretor m) where
   (>>=) x func = Interpretor $ do
     x1 <- interpret x
     interpret $ func x1
 
-instance MonadFail (Interpretor IO) where
+instance WrapperTestIO m => MonadFail (Interpretor m) where
   fail _ = error "trying to get MBool in logical operation, but failed. Ha-ha, loser!"
 
-instance Functor (Interpretor IO) where
+instance WrapperTestIO m => Functor (Interpretor m) where
   fmap f = Interpretor . fmap f . interpret
 
-instance Applicative (Interpretor IO) where
+instance WrapperTestIO m =>Applicative (Interpretor m) where
   pure = Interpretor . return
   liftA2 f x y = Interpretor $ do
     x1 <- interpret x
@@ -37,7 +57,7 @@ instance Applicative (Interpretor IO) where
 initContext :: Context
 initContext = empty
 
-instance PyDsl (Interpretor IO) where
+instance WrapperTestIO m => PyDsl (Interpretor m) where
   greaterThan a b = do
     a1 <- a
     b1 <- b
@@ -78,7 +98,7 @@ instance PyDsl (Interpretor IO) where
 
   mprint x = Interpretor $ do
     x1 <- interpret x
-    lift $ print x1
+    lift $ out $ show x1
 
   fCall a = Interpretor $ do
     _ <- interpret a
@@ -141,8 +161,8 @@ instance PyDsl (Interpretor IO) where
   defFunc2 _ _ _ _ = return ()
   end = return ()
   readInt = Interpretor $ do
-    lift $ MInt <$> (readLn :: IO Int)
+    lift $ MInt <$> rint
   readFloat = Interpretor $ do
-    lift $ MFloat <$> (readLn :: IO Float)
+    lift $ MFloat <$>rfloat
   readStr = Interpretor $ do
-    lift $ MString <$> (readLn :: IO String)
+    lift $ MString <$> rstr

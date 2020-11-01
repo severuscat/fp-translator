@@ -6,3 +6,4 @@ def f(a1, a2):
     print a2
 f("arg1", "arg2")
 p = f(1, 2)
+return p
