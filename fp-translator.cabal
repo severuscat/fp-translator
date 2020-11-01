@@ -34,7 +34,6 @@ library
       , DSL
       , Interpreter
       , PPrinter
-      , Test
       , GrammarToDSL
   other-modules:
       Paths_fp_translator
