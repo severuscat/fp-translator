@@ -6,12 +6,7 @@ import Grammar as G
 import DSL
 import Data.Map ((!), Map, empty, fromList, insert, member, lookup)
 import Data.Maybe (fromMaybe)
-import Control.Exception.Base (throw)
 
-data TransException 
-  = CantMatchTypesErr 
-  | NoValueErr
-  deriving (Show)
 
 data Context expr = Context
   { varsMap :: Map String (expr String),
@@ -97,4 +92,4 @@ gToDSLExpr G.ReadInt _ = readInt
 gToDSLExpr G.ReadStr _ = readStr
 gToDSLExpr G.ReadFloat _ = readFloat
 
-extractVar name context = fromMaybe (error ("no value with this name: " ++ name)) (lookup name context)
+extractVar name context = fromMaybe errorNoValue (lookup name context)

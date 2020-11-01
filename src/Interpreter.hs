@@ -7,9 +7,9 @@ module Interpreter where
 import Control.Applicative (liftA2)
 import Control.Monad.Trans.Class (lift)
 import Control.Monad.Trans.State.Strict
-import DSL
 import Data.Map
 import GHC.Base (when)
+import DSL
 import Data.Functor.Identity (Identity)
 
 type Context = Map String MyValue
@@ -29,7 +29,7 @@ instance WrapperTestIO IO where
   rstr = readLn :: IO String
 
 instance WrapperTestIO Identity where
-  out = \_ -> return () 
+  out = \_ -> return ()
   rint = return 1
   rfloat = return 1.0
   rstr = return ""
