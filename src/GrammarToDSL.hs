@@ -4,7 +4,7 @@ import Prelude hiding (lookup)
 
 import Grammar as G
 import DSL
-import Data.Map ((!), Map, empty, fromList, insert, member, lookup)
+import Data.Map ((!), Map, empty, fromList, insert, lookup)
 import Data.Maybe (fromMaybe)
 
 

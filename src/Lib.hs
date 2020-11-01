@@ -1,6 +1,5 @@
 module Lib where
 
-import Debug.Trace
 import Lexer
 import Data.List.Split (splitOn)
 

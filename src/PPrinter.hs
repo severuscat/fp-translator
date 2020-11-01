@@ -1,12 +1,7 @@
 module PPrinter where
 
-import Control.Applicative (liftA2)
-import Control.Monad.Trans.Class (lift)
-import Control.Monad.Trans.State.Strict
 import DSL
 import Data.Map
-import Debug.Trace
-import GHC.Base (when)
 
 type Context = Map String MyValue
 
